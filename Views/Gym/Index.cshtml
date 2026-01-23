@@ -1,0 +1,121 @@
+@model IronWill.Models.ViewModels.GymViewModel
+@{
+    ViewData["Title"] = "Fiziksel Kondisyon";
+}
+
+<h1 class="text-neon mb-4">FİZİKSEL KONDİSYON (Kışla)</h1>
+
+<!-- Nutrition / Ration Supply Section -->
+<div class="card bg-dark border-success mb-4 shadow-lg">
+    <div class="card-header border-success text-neon d-flex justify-content-between align-items-center">
+        <span class="fw-bold"><i class="fas fa-utensils"></i> GÜNLÜK ERZAK (PROTEİN)</span>
+        <span class="badge bg-success text-dark fw-bold">HEDEF: 160g</span>
+    </div>
+    <div class="card-body">
+        <div class="d-flex justify-content-between text-white-50 mb-2">
+            <span>Tüketilen: <strong class="text-white">@Model.TotalProteinToday g</strong></span>
+            <span>Kalan: <strong class="text-danger">@(160 - Model.TotalProteinToday) g</strong></span>
+        </div>
+        <div class="progress mb-3" style="height: 25px; background-color: #222;">
+            @{
+                int percentage = (int)((double)Model.TotalProteinToday / 160 * 100);
+                string progressColor = percentage >= 100 ? "bg-success" : "bg-warning";
+            }
+            <div class="progress-bar @progressColor progress-bar-striped progress-bar-animated" role="progressbar" style="width: @percentage%">@percentage%</div>
+        </div>
+        
+        <div class="d-flex flex-wrap gap-2">
+            <form asp-action="AddFoodLog" method="post" class="d-inline">
+                <input type="hidden" name="foodName" value="Tavuk Göğsü (100g)" />
+                <input type="hidden" name="protein" value="30" />
+                <button type="submit" class="btn btn-outline-success btn-sm text-uppercase fw-bold"><i class="fas fa-drumstick-bite"></i> Tavuk (+30g)</button>
+            </form>
+             <form asp-action="AddFoodLog" method="post" class="d-inline">
+                <input type="hidden" name="foodName" value="Ton Balığı" />
+                <input type="hidden" name="protein" value="25" />
+                <button type="submit" class="btn btn-outline-info btn-sm text-uppercase fw-bold"><i class="fas fa-fish"></i> Ton Balığı (+25g)</button>
+            </form>
+             <form asp-action="AddFoodLog" method="post" class="d-inline">
+                <input type="hidden" name="foodName" value="Yumurta (2 Adet)" />
+                <input type="hidden" name="protein" value="12" />
+                <button type="submit" class="btn btn-outline-warning btn-sm text-uppercase fw-bold"><i class="fas fa-egg"></i> Yumurta (+12g)</button>
+            </form>
+             <form asp-action="AddFoodLog" method="post" class="d-inline">
+                <input type="hidden" name="foodName" value="Protein Shake" />
+                <input type="hidden" name="protein" value="25" />
+                <button type="submit" class="btn btn-outline-primary btn-sm text-uppercase fw-bold"><i class="fas fa-flask"></i> Shake (+25g)</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Log Entry Form (Left / Top) -->
+    <div class="col-md-4 mb-4">
+        <div class="card bg-dark border-secondary">
+            <div class="card-header border-secondary text-neon">
+                <i class="fas fa-plus-circle"></i> SET KAYDET
+            </div>
+            <div class="card-body">
+                <form asp-action="Log">
+                    <div class="form-group mb-3">
+                        <label asp-for="NewLog.MuscleGroup" class="control-label text-muted">Kas Grubu</label>
+                        <select asp-for="NewLog.MuscleGroup" class="form-control bg-dark text-white border-secondary">
+                            <option value="Chest">Göğüs</option>
+                            <option value="Back">Sırt</option>
+                            <option value="Legs">Bacak</option>
+                            <option value="Shoulders">Omuz</option>
+                            <option value="Arms">Kol</option>
+                            <option value="Abs">Karın</option>
+                            <option value="Cardio">Kardiyo</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="NewLog.ExerciseName" class="control-label text-muted">Egzersiz</label>
+                        <input asp-for="NewLog.ExerciseName" class="form-control bg-dark text-white border-secondary" placeholder="Tüm gücünle..." required />
+                    </div>
+                    <div class="row">
+                        <div class="col-6 form-group mb-3">
+                            <label asp-for="NewLog.WeightKg" class="control-label text-muted">Ağırlık (kg)</label>
+                            <input asp-for="NewLog.WeightKg" class="form-control bg-dark text-white border-secondary" type="number" step="0.5" />
+                        </div>
+                        <div class="col-6 form-group mb-3">
+                            <label asp-for="NewLog.Reps" class="control-label text-muted">Tekrar</label>
+                            <input asp-for="NewLog.Reps" class="form-control bg-dark text-white border-secondary" type="number" />
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-outline-danger w-100">KAYDET</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Table (Right / Bottom) -->
+    <div class="col-md-8">
+        <h5 class="text-muted mb-3"><i class="fas fa-history"></i> SON ANTRENMANLAR</h5>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover table-sm text-small">
+                <thead>
+                    <tr class="text-secondary">
+                        <th>Tarih</th>
+                        <th>Bölge</th>
+                        <th>Hareket</th>
+                        <th>Ağırlık</th>
+                        <th>Tekrar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.History) {
+                        <tr>
+                            <td class="text-muted">@item.Date.ToString("MM/dd HH:mm")</td>
+                            <td>@item.MuscleGroup</td>
+                            <td class="text-neon">@item.ExerciseName</td>
+                            <td>@item.WeightKg</td>
+                            <td>@item.Reps</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

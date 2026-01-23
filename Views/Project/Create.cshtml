@@ -1,0 +1,43 @@
+@model IronWill.Models.Project
+@{
+    ViewData["Title"] = "Yeni Proje";
+}
+
+<h1 class="text-neon">YENİ OPERASYON</h1>
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create">
+            <div class="form-group mb-3">
+                <label asp-for="ClientName" class="control-label">Müşteri Adı</label>
+                <input asp-for="ClientName" class="form-control bg-dark text-white" />
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="ProjectName" class="control-label">Proje Adı</label>
+                <input asp-for="ProjectName" class="form-control bg-dark text-white" />
+            </div>
+            <div class="row">
+                <div class="col-6 form-group mb-3">
+                    <label asp-for="AgreedPrice" class="control-label">Anlaşılan Fiyat</label>
+                    <input asp-for="AgreedPrice" class="form-control bg-dark text-white" />
+                </div>
+                <div class="col-6 form-group mb-3">
+                    <label asp-for="PaidAmount" class="control-label">Ödenen Miktar</label>
+                    <input asp-for="PaidAmount" class="form-control bg-dark text-white" />
+                </div>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Status" class="control-label">Durum</label>
+                <select asp-for="Status" class="form-control bg-dark text-white">
+                    <option value="Pending">Beklemede</option>
+                    <option value="Active">Aktif</option>
+                    <option value="Completed">Tamamlandı</option>
+                </select>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="ProgressPercentage" class="control-label">İlerleme %</label>
+                <input asp-for="ProgressPercentage" class="form-control bg-dark text-white" type="number" min="0" max="100" />
+            </div>
+            <button type="submit" class="btn btn-success w-100">PROJEYİ BAŞLAT</button>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,213 @@
+@model IronWill.Models.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Ana Kontrol";
+    
+    ViewData["Title"] = "Ana Kontrol";
+}
+
+<!-- Top Header Info -->
+<div class="d-flex justify-content-between align-items-center mb-5 border-bottom border-secondary pb-3">
+    <div>
+        <h1 class="display-5 fw-bold text-neon mb-0">SAVAŞ ODASI</h1>
+        <p class="text-muted mb-0">Hoşgeldin Asker. Cephe stabil.</p>
+    </div>
+    <div class="text-end position-relative" style="min-width: 250px;">
+        <div class="d-flex align-items-center justify-content-end gap-3 mb-1">
+            <div class="text-end">
+                <div class="h3 fw-bold @Model.RankColor mb-0">@Model.RankTitle</div>
+                <small class="text-muted">@Model.CurrentXP XP</small>
+            </div>
+            <i class="@Model.RankIcon fa-3x @Model.RankColor"></i>
+        </div>
+        
+        <!-- XP Progress Bar -->
+        <div class="progress bg-dark border border-secondary" style="height: 10px;">
+            <div class="progress-bar @Model.RankColor.Replace("text", "bg")" role="progressbar" style="width: @Model.LevelProgress%" aria-valuenow="@Model.LevelProgress" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <div class="d-flex justify-content-between">
+            <small class="text-muted" style="font-size: 0.7rem;">0%</small>
+            <small class="text-muted" style="font-size: 0.7rem;">SONRAKİ RÜTBE: @Model.NextRankXP XP</small>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Left Col: Gauge & Panic -->
+    <div class="col-md-4 text-center border-end border-secondary">
+        <h4 class="text-muted mb-4">DURUM RAPORU</h4>
+        
+        <!-- Gauge -->
+        @{
+            string strokeColor = Model.DisciplineScore >= 80 ? "#0f0" : (Model.DisciplineScore >= 50 ? "#ffc107" : "#f00");
+        }
+        <div class="gauge-container mb-3">
+            <svg viewBox="0 0 36 36" class="circular-chart">
+                <path class="circle-bg"
+                      d="M18 2.0845
+                         a 15.9155 15.9155 0 0 1 0 31.831
+                         a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="circle"
+                      stroke-dasharray="@Model.DisciplineScore, 100"
+                      stroke="@strokeColor"
+                      d="M18 2.0845
+                         a 15.9155 15.9155 0 0 1 0 31.831
+                         a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <text x="18" y="20.35" class="percentage">@Model.DisciplineScore</text>
+            </svg>
+        </div>
+        <p class="lead">DİSİPLİN PUANI</p>
+
+        <!-- Panic Button -->
+        <button type="button" class="btn btn-outline-danger w-75 mt-4" data-bs-toggle="modal" data-bs-target="#panicModal">
+            <i class="fas fa-exclamation-triangle"></i> ACİL DURUM
+        </button>
+    </div>
+
+    <!-- Right Col: Charts & Stats -->
+    <!-- Right Col: Charts & Stats -->
+    <div class="col-md-8">
+        <!-- Chart Container -->
+        <div class="card bg-dark border-secondary mb-4">
+            <div class="card-body">
+                <h5 class="card-title text-neon"><i class="fas fa-chart-line"></i> PERFORMANS ANALİZİ (Son 7 Gün)</h5>
+                <canvas id="disciplineChart" height="100"></canvas>
+            </div>
+        </div>
+
+        <!-- Quick Stats Grid -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="p-3 border border-secondary bg-dark text-center">
+                    <h3 class="text-white">@Model.TotalCleanDays</h3>
+                    <small class="text-muted">TEMİZ GÜN</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3 border border-secondary bg-dark text-center">
+                    <h3 class="text-white">@Model.ActiveProjectsCount</h3>
+                    <small class="text-muted">AKTİF GÖREV</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3 border border-secondary bg-dark text-center">
+                    <h3 class="text-success">@Model.TotalProjectEarnings.ToString("N0")₺</h3>
+                    <small class="text-muted">KASA</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- To-Do List (War Room Tasks) -->
+        <div class="card bg-dark border-secondary mb-4">
+            <div class="card-header border-secondary d-flex justify-content-between align-items-center">
+                <h5 class="text-neon mb-0"><i class="fas fa-tasks"></i> GÜNLÜK EMİRLER</h5>
+                <span class="badge bg-secondary">@Model.Todos.Count(t => !t.IsCompleted) Bekleyen</span>
+            </div>
+            <div class="card-body">
+                <!-- Add Task Form -->
+                <form asp-action="AddTodo" method="post" class="d-flex gap-2 mb-3">
+                    <input type="text" name="text" class="form-control bg-dark text-white border-secondary" placeholder="Yeni görev emri..." required>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-plus"></i></button>
+                </form>
+
+                <!-- Task List -->
+                @if (Model.Todos.Any())
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var todo in Model.Todos)
+                        {
+                            <li class="list-group-item bg-dark border-secondary d-flex justify-content-between align-items-center ps-0 pe-0">
+                                <form asp-action="ToggleTodo" method="post" class="d-flex align-items-center gap-2 flex-grow-1" style="cursor: pointer;" onclick="this.submit()">
+                                    <input type="hidden" name="id" value="@todo.Id" />
+                                    <div class="form-check">
+                                        <input class="form-check-input bg-dark border-success" type="checkbox" @(todo.IsCompleted ? "checked" : "") style="pointer-events: none;">
+                                    </div>
+                                    <span class="@(todo.IsCompleted ? "text-muted text-decoration-line-through" : "text-white")">@todo.Text</span>
+                                </form>
+                                <form asp-action="DeleteTodo" method="post" class="ms-2">
+                                    <input type="hidden" name="id" value="@todo.Id" />
+                                    <button type="submit" class="btn btn-sm btn-link text-danger p-0"><i class="fas fa-times"></i></button>
+                                </form>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted text-center my-3">Cephe temiz. Emir bekleniyor.</p>
+                }
+            </div>
+        </div>
+
+        <!-- Habits List with Empty State -->
+        <h5 class="text-muted mb-3"><i class="fas fa-link"></i> AKTİF ZİNCİRLER</h5>
+        @if (!Model.Habits.Any())
+        {
+             <div class="alert alert-dark border-secondary text-center opacity-75">
+                <i class="fas fa-wind fa-2x mb-2 text-muted"></i>
+                <p class="mb-2">Takip edilen alışkanlık yok.</p>
+                <a asp-controller="Habit" asp-action="Create" class="btn btn-sm btn-outline-success">HEDEF BELİRLE</a>
+            </div>
+        }
+        else
+        {
+            <div class="list-group">
+                @foreach (var habit in Model.Habits)
+                {
+                    var cleanDays = (DateTime.Now - habit.LastRelapseDate).Days;
+                    <div class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="@habit.Icon text-muted me-2"></i> @habit.Name
+                        </div>
+                        <span class="badge bg-success rounded-pill">@cleanDays Gün</span>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Panic Modal -->
+<div class="modal fade" id="panicModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-danger">
+                <h5 class="modal-title text-danger-glow"><i class="fas fa-skull"></i> SAKİN OL ASKER</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="lead">"@Model.DailyQuote"</p>
+                <hr class="border-danger">
+                <p>Zayıflığa teslim olma. Disiplinin acısı, pişmanlığın acısından çok daha hafiftir.</p>
+                <button class="btn btn-danger w-100 mt-3" data-bs-dismiss="modal">HATTI TUTACAĞIM</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Chart Configuration
+        const ctx = document.getElementById('disciplineChart').getContext('2d');
+        const disciplineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
+                datasets: [{
+                    label: 'Disiplin',
+                    data: [65, 59, 70, 71, 56, 65, @Model.DisciplineScore], // Dummy data + current score
+                    borderColor: '#0f0',
+                    backgroundColor: 'rgba(0, 255, 0, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, max: 100, grid: { color: '#333' } },
+                    x: { grid: { color: '#333' } }
+                }
+            }
+        });
+    </script>
+}

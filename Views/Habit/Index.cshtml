@@ -1,0 +1,49 @@
+@model IEnumerable<IronWill.Models.Habit>
+@{
+    ViewData["Title"] = "Habits";
+}
+
+<h1 class="text-neon mb-4">ALIŞKANLIK CEPHANESİ</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-outline-success"><i class="fas fa-plus"></i> YENİ ALIŞKANLIK</a>
+</p>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <i class="fas fa-shield-alt fa-3x text-muted mb-3"></i>
+        <h4 class="text-white">Cephe Savunmasız</h4>
+        <p class="text-muted">Tembellik düşmandır. Bir savunma hattı (alışkanlık) oluştur.</p>
+        <a asp-action="Create" class="btn btn-success mt-2">HEDEF BELİRLE</a>
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var item in Model) {
+            var cleanDays = (DateTime.Now - item.LastRelapseDate).Days;
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="@item.Icon fa-3x text-muted mb-3"></i>
+                        <h5 class="card-title text-neon">@item.Name</h5>
+                        <h2 class="display-4 fw-bold text-white">@cleanDays</h2>
+                        <p class="text-muted">Temiz Gün</p>
+                        <p class="small text-secondary">En İyi Seri: @item.BestStreakDays Gün</p>
+                        
+                        <div class="d-flex gap-2 mt-2">
+                            <a asp-action="Relapse" asp-route-id="@item.Id" class="btn btn-danger btn-sm flex-grow-1">
+                                <i class="fas fa-unlink"></i> BOZULDU
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary btn-sm" title="Düzenle">
+                                <i class="fas fa-cog"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

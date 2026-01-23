@@ -1,0 +1,64 @@
+@model IronWill.Models.ViewModels.CreateBookViewModel
+
+@{
+    ViewData["Title"] = "Upload Intelligence";
+}
+
+<div class="container mt-5">
+    <div class="card bg-dark text-white border-danger shadow-lg" style="max-width: 600px; margin: 0 auto; border-top-width: 4px;">
+        <div class="card-header bg-transparent border-danger border-bottom d-flex align-items-center">
+            <i class="bi bi-cloud-upload-fill text-danger fs-4 me-2"></i>
+            <h4 class="mb-0 text-uppercase fw-bold" style="letter-spacing: 1px;">Arşive Belge Ekle</h4>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Create" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                
+                <div class="mb-4">
+                    <label asp-for="Title" class="form-label text-white-50 small text-uppercase fw-bold">Belge / Kitap Adı</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-secondary border-secondary text-light"><i class="bi bi-tag-fill"></i></span>
+                        <input asp-for="Title" class="form-control bg-dark text-white border-secondary" placeholder="Örn: Savaş Sanatı" />
+                    </div>
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Author" class="form-label text-white-50 small text-uppercase fw-bold">Yazar / Kaynak</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-secondary border-secondary text-light"><i class="bi bi-person-fill"></i></span>
+                        <input asp-for="Author" class="form-control bg-dark text-white border-secondary" placeholder="Örn: Sun Tzu" />
+                    </div>
+                    <span asp-validation-for="Author" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="TotalPages" class="form-label text-white-50 small text-uppercase fw-bold">Toplam Sayfa Sayısı</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-secondary border-secondary text-light"><i class="bi bi-hash"></i></span>
+                        <input asp-for="TotalPages" class="form-control bg-dark text-white border-secondary" type="number" />
+                    </div>
+                    <span asp-validation-for="TotalPages" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-5">
+                    <label asp-for="PdfFile" class="form-label text-white-50 small text-uppercase fw-bold">PDF Dökümanı</label>
+                    <input asp-for="PdfFile" class="form-control bg-dark text-white border-secondary" type="file" accept=".pdf" />
+                    <div class="form-text text-white-50"><i class="bi bi-info-circle"></i> Sadece .pdf formatında dosyalar kabul edilir.</div>
+                    <span asp-validation-for="PdfFile" class="text-danger small"></span>
+                </div>
+
+                <div class="d-grid gap-3">
+                    <button type="submit" class="btn btn-danger btn-lg text-uppercase fw-bold shadow">
+                        <i class="bi bi-save2-fill"></i> Kaydet ve Arşivle
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary text-uppercase fw-bold">İptal</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

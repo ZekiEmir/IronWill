@@ -1,0 +1,29 @@
+@model IronWill.Models.Habit
+@{
+    ViewData["Title"] = "Bozulma Kaydı";
+}
+
+<h1 class="text-danger-glow text-center"><i class="fas fa-skull"></i> BOZULMA TESBİT EDİLDİ</h1>
+<h3 class="text-center text-muted">@Model.Name</h3>
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-body">
+                <p class="text-center">"Başarısızlık ölümcül değildir, fakat değişmekte başarısız olmak öyledir."</p>
+                <form asp-action="Relapse">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <div class="form-group mb-3">
+                        <label class="control-label">Tetikleyici / Sebep</label>
+                        <input name="triggerReason" class="form-control bg-dark text-white border-danger" required placeholder="Örn: Stres, Sıkıntı" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="control-label">Notlar / Alınan Ders</label>
+                        <textarea name="notes" class="form-control bg-dark text-white border-danger" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100 fw-bold">SAYACI SIFIRLA</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

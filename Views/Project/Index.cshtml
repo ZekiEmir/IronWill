@@ -1,0 +1,95 @@
+@model IEnumerable<IronWill.Models.Project>
+@{
+    ViewData["Title"] = "Freelance CRM";
+    var totalEarnings = Model.Where(p => p.Status == "Completed" || p.Status == "Paid").Sum(p => p.PaidAmount);
+    var target = 50000;
+    var percentage = (int)((double)totalEarnings / target * 100);
+    percentage = percentage > 100 ? 100 : percentage;
+}
+
+<!-- Financial Goal Header -->
+<div class="card bg-dark border-secondary mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between mb-2">
+            <span class="text-neon fw-bold"><i class="fas fa-laptop-code"></i> HEDEF: TACTICAL SETUP</span>
+            <span class="text-white">@totalEarnings.ToString("N0") / @target.ToString("N0") ₺</span>
+        </div>
+        <div class="progress" style="height: 15px;">
+            <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width: @percentage%">@percentage%</div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="text-neon m-0">FREELANCE İŞLEMLERİ</h1>
+    <a asp-action="Create" class="btn btn-outline-success"><i class="fas fa-plus"></i> YENİ PROJE</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <i class="fas fa-search-dollar fa-3x text-muted mb-3"></i>
+        <h4 class="text-white">Finansal Sessizlik</h4>
+        <p class="text-muted">Şu an aktif bir operasyon yok Komutan. Yeni bir av başlat.</p>
+        <a asp-action="Create" class="btn btn-success mt-2">GÖREV OLUŞTUR</a>
+    </div>
+}
+else
+{
+    <div class="row">
+        <!-- Render Columns Logic (keeping existing if applicable, or simplifying for MVP) -->
+        <!-- Pending Column -->
+        <div class="col-md-4">
+            <h5 class="text-muted border-bottom border-secondary pb-2">BEKLEMEDE</h5>
+            @foreach (var item in Model.Where(p => p.Status == "Pending")) {
+                <div class="card bg-dark border-secondary mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title text-white">@item.ClientName</h5>
+                        <p class="card-text text-muted">@item.ProjectName</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-secondary">Beklemede</span>
+                            <span class="text-success fw-bold">@item.AgreedPrice.ToString("C0")</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Active Column -->
+        <div class="col-md-4">
+            <h5 class="text-neon border-bottom border-secondary pb-2">AKTİF OPERASYONLAR</h5>
+            @foreach (var item in Model.Where(p => p.Status == "Active")) {
+                <div class="card bg-dark border-neon mb-3" style="box-shadow: 0 0 5px rgba(0, 255, 0, 0.2);">
+                    <div class="card-body">
+                        <h5 class="card-title text-neon">@item.ClientName</h5>
+                        <p class="card-text text-white">@item.ProjectName</p>
+                        <div class="progress mb-2" style="height: 5px;">
+                            <div class="progress-bar bg-neon" role="progressbar" style="width: @item.ProgressPercentage%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">@item.ProgressPercentage%</small>
+                            <span class="text-success fw-bold">@item.AgreedPrice.ToString("C0")</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Completed Column -->
+        <div class="col-md-4">
+            <h5 class="text-success border-bottom border-secondary pb-2">TAMAMLANAN</h5>
+            @foreach (var item in Model.Where(p => p.Status == "Completed")) {
+                <div class="card bg-dark border-success mb-3 opacity-75">
+                    <div class="card-body">
+                        <h5 class="card-title text-decoration-line-through text-muted">@item.ClientName</h5>
+                        <p class="card-text text-muted">@item.ProjectName</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-success">Tamamlandı</span>
+                            <span class="text-muted text-decoration-line-through">@item.PaidAmount.ToString("C0")</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}

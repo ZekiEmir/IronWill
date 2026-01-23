@@ -1,0 +1,56 @@
+@model IronWill.Models.JournalEntry
+
+@{
+    ViewData["Title"] = "Nöbet Düzenle";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card bg-dark border-secondary shadow-lg">
+            <div class="card-header border-secondary">
+                <h4 class="text-neon mb-0"><i class="fas fa-edit"></i> NÖBET DEFTERİNİ DÜZENLE</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    <!-- Preserve original date if we want, or allow edit. Usually locked. -->
+                    <input type="hidden" asp-for="Date" /> 
+
+                    <div class="form-group mb-4">
+                        <label asp-for="Title" class="control-label text-muted mb-2">Başlık</label>
+                        <input asp-for="Title" class="form-control bg-dark text-white border-secondary" placeholder="Konu nedir?" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label asp-for="Content" class="control-label text-muted mb-2">İçerik</label>
+                        <textarea asp-for="Content" class="form-control bg-dark text-white border-secondary" rows="12" placeholder="Düşüncelerini aktar asker..."></textarea>
+                        <span asp-validation-for="Content" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label asp-for="Mood" class="control-label text-muted mb-2">Ruh Hali</label>
+                        <select asp-for="Mood" class="form-control bg-dark text-white border-secondary">
+                            <option value="Sakin">Sakin</option>
+                            <option value="Öfkeli">Öfkeli</option>
+                            <option value="Yorgun">Yorgun</option>
+                            <option value="Motive">Motive</option>
+                            <option value="Endişeli">Endişeli</option>
+                        </select>
+                        <span asp-validation-for="Mood" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> GERİ DÖN</a>
+                        <button type="submit" class="btn btn-warning fw-bold"><i class="fas fa-save"></i> DEĞİŞİKLİKLERİ KAYDET</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

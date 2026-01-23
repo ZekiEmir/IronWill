@@ -1,0 +1,146 @@
+@model IEnumerable<IronWill.Models.Book>
+
+@{
+    ViewData["Title"] = "Taktik Arşiv";
+}
+
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h1 class="display-5 text-uppercase fw-bold text-danger mb-0" style="letter-spacing: 2px;">
+                <i class="bi bi-shield-shaded"></i> Taktik Arşiv
+            </h1>
+            <p class="text-muted small mb-0 text-uppercase" style="letter-spacing: 1px;">Operasyonel Bilgi Bankası</p>
+        </div>
+        
+        <div class="d-flex gap-2">
+            <div class="input-group">
+                <span class="input-group-text bg-dark border-secondary text-danger"><i class="bi bi-search"></i></span>
+                <input type="text" id="searchInput" class="form-control bg-dark text-white border-secondary" placeholder="Belge Ara..." onkeyup="filterBooks()">
+            </div>
+            <select id="statusFilter" class="form-select bg-dark text-white border-secondary w-auto" onchange="filterBooks()">
+                <option value="all">Tüm Durumlar</option>
+                <option value="Okunacak">Okunacak</option>
+                <option value="Okunuyor">Okunuyor</option>
+                <option value="Tamamlandı">Tamamlandı</option>
+            </select>
+        </div>
+
+        <a asp-action="Create" class="btn btn-danger btn-lg text-uppercase fw-bold shadow-sm">
+            <i class="bi bi-folder-plus"></i> Yeni Kayıt
+        </a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4" id="booksContainer">
+        @foreach (var item in Model)
+        {
+            string statusBadgeClass = "bg-secondary";
+            string statusText = "Bilinmiyor";
+            string borderClass = "border-secondary";
+            
+            if (item.Status == "To Read") 
+            { 
+                statusBadgeClass = "bg-secondary"; 
+                statusText = "Okunacak";
+                borderClass = "border-secondary";
+            }
+            else if (item.Status == "Reading") 
+            { 
+                statusBadgeClass = "bg-warning text-dark"; 
+                statusText = "Okunuyor";
+                borderClass = "border-warning";
+            }
+            else if (item.Status == "Finished") 
+            { 
+                statusBadgeClass = "bg-success"; 
+                statusText = "Tamamlandı";
+                borderClass = "border-success";
+            }
+
+            <div class="col book-item" data-title="@item.Title.ToLower()" data-status="@statusText">
+                <div class="card h-100 bg-dark text-white border shadow-lg @borderClass" style="border-width: 1px;">
+                    <div class="card-header bg-transparent border-bottom border-secondary d-flex justify-content-between align-items-center py-2">
+                        <span class="badge @statusBadgeClass text-uppercase" style="letter-spacing: 1px;">@statusText</span>
+                        <small class="text-white-50" style="font-family: monospace;">REF: @item.Id.ToString("D4")</small>
+                    </div>
+                    
+                    <div class="card-body position-relative overflow-hidden">
+                        <!-- Top Secret Stamp Effect -->
+                        <div class="position-absolute top-50 start-50 translate-middle opacity-25" style="transform: translate(-50%, -50%) rotate(-30deg); pointer-events: none;">
+                            <i class="bi bi-file-earmark-lock-fill text-danger" style="font-size: 10rem;"></i>
+                        </div>
+
+                        <h5 class="card-title text-uppercase fw-bold text-white mb-1 position-relative z-1">@item.Title</h5>
+                        <p class="card-subtitle text-danger small text-uppercase mb-3 position-relative z-1">
+                            <i class="bi bi-person-fill"></i> @item.Author
+                        </p>
+                        
+                        <div class="position-relative z-1 bg-black bg-opacity-50 p-2 rounded border border-secondary">
+                             @{
+                                int progress = 0;
+                                if(item.TotalPages > 0)
+                                {
+                                    progress = (int)((double)item.CurrentPage / item.TotalPages * 100);
+                                }
+                             }
+                            <div class="d-flex justify-content-between small text-white-50 mb-1">
+                                <span>İlerleme</span>
+                                <span>@progress%</span>
+                            </div>
+                            <div class="progress" style="height: 6px; background-color: #333;">
+                                <div class="progress-bar bg-danger progress-bar-striped progress-bar-animated" role="progressbar" style="width: @progress%;" aria-valuenow="@progress" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="d-flex justify-content-between small text-white-50 mt-1">
+                                <span>Sayfa: @item.CurrentPage / @item.TotalPages</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer bg-transparent border-top border-secondary p-3">
+                        <a asp-action="Read" asp-route-id="@item.Id" class="btn btn-outline-danger w-100 text-uppercase fw-bold">
+                            <i class="bi bi-eye-fill"></i> Dosyayı İncele
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    
+    <!-- Empty State -->
+    <div id="noResults" class="text-center py-5 d-none">
+        <i class="bi bi-folder-x text-muted" style="font-size: 4rem;"></i>
+        <h3 class="text-muted mt-3 text-uppercase">Arşivde Kayıt Bulunamadı</h3>
+    </div>
+</div>
+
+<script>
+    function filterBooks() {
+        var input = document.getElementById("searchInput");
+        var filter = input.value.toLowerCase();
+        var statusFilter = document.getElementById("statusFilter").value;
+        var nodes = document.getElementsByClassName("book-item");
+        var hasVisible = false;
+
+        for (var i = 0; i < nodes.length; i++) {
+            var title = nodes[i].getAttribute("data-title");
+            var status = nodes[i].getAttribute("data-status");
+            
+            var matchesSearch = title.includes(filter);
+            var matchesStatus = statusFilter === "all" || status === statusFilter;
+
+            if (matchesSearch && matchesStatus) {
+                nodes[i].style.display = "block";
+                hasVisible = true;
+            } else {
+                nodes[i].style.display = "none";
+            }
+        }
+        
+        var noResults = document.getElementById("noResults");
+        if (!hasVisible) {
+            noResults.classList.remove("d-none");
+        } else {
+            noResults.classList.add("d-none");
+        }
+    }
+</script>

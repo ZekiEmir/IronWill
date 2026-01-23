@@ -1,0 +1,51 @@
+@model IronWill.Models.JournalEntry
+@{
+    ViewData["Title"] = "Night Watch Terminal";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="text-neon mb-4 text-center">GECE NÖBETİ PROTOKOLÜ</h2>
+        
+        <form asp-action="Create" class="bg-black p-4 border border-secondary" style="box-shadow: 0 0 15px rgba(0,255,0,0.1);">
+            <div class="mb-3">
+                <label class="form-label text-muted">KONU BAŞLIĞI</label>
+                <input asp-for="Title" class="form-control bg-dark text-white border-secondary" placeholder="Örn: Cephede Sessizlik..." />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-muted">GÜNLÜK RAPOR (Zihnini Boşalt)</label>
+                <textarea asp-for="Content" class="form-control bg-dark text-neon border-secondary" rows="10" placeholder="> Yazmaya başla..." style="font-family: 'Courier New', monospace;"></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label text-muted">RUH HALİ</label>
+                    <select asp-for="Mood" class="form-select bg-dark text-white border-secondary">
+                        <option value="Stoic">Stoik (Sakin)</option>
+                        <option value="Focused">Odaklanmış</option>
+                        <option value="Anxious">Kaygılı</option>
+                        <option value="Tired">Yorgun</option>
+                        <option value="Angry">Öfkeli</option>
+                        <option value="Victorious">Muzaffer</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label text-muted">KENDİNE PUANIN (1-10)</label>
+                    <input asp-for="SelfRating" type="range" class="form-range" min="1" max="10" id="ratingRange" oninput="document.getElementById('ratingVal').innerText = this.value">
+                    <div class="text-center text-neon fw-bold" id="ratingVal">5</div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-outline-success btn-lg">KAYDI BİTİR VE ARŞİVLE</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

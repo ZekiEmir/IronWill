@@ -1,0 +1,107 @@
+@model IEnumerable<IronWill.Models.Subject>
+@{
+    ViewData["Title"] = "Academic Radar";
+}
+
+<h1 class="text-neon mb-4">AKADEMİK RADAR</h1>
+<p>
+    <a asp-action="CreateSubject" class="btn btn-outline-info"><i class="fas fa-plus"></i> DERS EKLE</a>
+</p>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <i class="fas fa-book-dead fa-3x text-muted mb-3"></i>
+        <h4 class="text-white">Sahada Sessizlik</h4>
+        <p class="text-muted">Henüz aktif bir cephe yok Komutan. Yeni bir ders ekle ve saldırıya başla.</p>
+        <a asp-action="CreateSubject" class="btn btn-info mt-2">MÜFREDAT OLUŞTUR</a>
+    </div>
+}
+else
+{
+    <div class="accordion" id="subjectsAccordion">
+        @foreach (var subject in Model) {
+        var completedTopics = subject.Topics.Count(t => t.IsCompleted);
+        var totalTopics = subject.Topics.Count;
+        var progress = totalTopics > 0 ? (int)((double)completedTopics / totalTopics * 100) : 0;
+        var collapseId = "collapse-" + subject.Id;
+        var headerId = "heading-" + subject.Id;
+
+        <div class="accordion-item bg-dark border-secondary mb-3">
+            <h2 class="accordion-header" id="@headerId">
+                <button class="accordion-button collapsed bg-dark text-white border-bottom border-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId">
+                    <div class="d-flex w-100 justify-content-between align-items-center me-3">
+                        <span class="fw-bold text-neon">@subject.Name</span>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-secondary me-3">@subject.TargetHoursPerWeek h/w</span>
+                            <div class="progress" style="width: 100px; height: 10px;">
+                                <div id="progress-bar-@subject.Id" class="progress-bar bg-info" role="progressbar" style="width: @progress%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </button>
+            </h2>
+            <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="@headerId" data-bs-parent="#subjectsAccordion">
+                <div class="accordion-body">
+                    <ul class="list-group list-group-flush mb-3" id="topic-list-@subject.Id">
+                        @foreach(var topic in subject.Topics)
+                        {
+                            <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between align-items-center p-2">
+                                <div class="form-check">
+                                    <input class="form-check-input topic-checkbox" type="checkbox" data-topic-id="@topic.Id" data-subject-id="@subject.Id" id="topic-@topic.Id" @(topic.IsCompleted ? "checked" : "")>
+                                    <label class="form-check-label @(topic.IsCompleted ? "text-decoration-line-through text-muted" : "")" for="topic-@topic.Id" id="label-@topic.Id">
+                                        @topic.Title
+                                    </label>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+
+                    <form asp-action="AddTopic" class="input-group">
+                        <input type="hidden" name="subjectId" value="@subject.Id" />
+                        <input type="text" name="title" class="form-control bg-dark text-white border-secondary" placeholder="Yeni Konu..." required />
+                        <button class="btn btn-secondary" type="submit"><i class="fas fa-plus"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+    </div>
+}
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.topic-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const topicId = this.dataset.topicId;
+                const subjectId = this.dataset.subjectId;
+                const isChecked = this.checked;
+                const label = document.getElementById('label-' + topicId);
+
+                // Optimistic UI Update
+                if(isChecked) {
+                    label.classList.add('text-decoration-line-through', 'text-muted');
+                } else {
+                    label.classList.remove('text-decoration-line-through', 'text-muted');
+                }
+
+                // AJAX Request
+                fetch('/School/ToggleTopicAjax', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `id=${topicId}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success) {
+                        // Update Progress Bar
+                        const progressBar = document.getElementById('progress-bar-' + subjectId);
+                        progressBar.style.width = data.progress + '%';
+                    }
+                });
+            });
+        });
+    </script>
+}

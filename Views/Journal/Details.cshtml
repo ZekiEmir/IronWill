@@ -1,0 +1,45 @@
+@model IronWill.Models.JournalEntry
+@{
+    ViewData["Title"] = "Log Details";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-neon" style="font-family: 'Courier New', monospace;">
+            <i class="fas fa-file-alt"></i> LOG_@Model.Date.ToString("yyyyMMdd")_@Model.Id.ToString("D3")
+        </h2>
+        <a asp-action="Index" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> ARŞİVE DÖN</a>
+    </div>
+
+    <div class="card bg-black border border-secondary p-4" style="box-shadow: 0 0 20px rgba(0, 255, 0, 0.05);">
+        <!-- Metadata Header -->
+        <div class="row mb-4 border-bottom border-secondary pb-3" style="font-family: 'Courier New', monospace;">
+            <div class="col-md-6">
+                <small class="text-muted d-block">TARİH SAAT</small>
+                <span class="text-white">@Model.Date.ToString("dd.MM.yyyy HH:mm")</span>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted d-block">RUH HALİ</small>
+                <span class="text-neon">@Model.Mood.ToUpper()</span>
+            </div>
+            <div class="col-md-3 text-end">
+                <small class="text-muted d-block">PUAN</small>
+                <span class="badge bg-success fs-6">@Model.SelfRating / 10</span>
+            </div>
+        </div>
+
+        <!-- Log Content -->
+        <div class="log-content mb-4">
+            <h4 class="text-white mb-3">KONU: @Model.Title</h4>
+            <div class="p-3 bg-dark text-neon rounded" style="font-family: 'Courier New', monospace; min-height: 200px; white-space: pre-wrap;">
+@Model.Content
+            </div>
+        </div>
+
+        <!-- Footer / Signature -->
+        <div class="text-end text-muted small" style="font-family: 'Courier New', monospace;">
+            <p>--- END OF LOG ---</p>
+            <p>IMZA: KOMUTAN</p>
+        </div>
+    </div>
+</div>

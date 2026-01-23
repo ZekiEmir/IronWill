@@ -1,0 +1,125 @@
+@model IronWill.Models.Book
+
+@{
+    ViewData["Title"] = "Tactical Analysis: " + Model.Title;
+    Layout = null; // Full screen experience
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - IronWill Taktik</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; background-color: #0f0f0f; color: #e0e0e0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .war-room-container { display: flex; height: 100vh; width: 100vw; }
+        .pdf-sector { flex: 7; height: 100%; border-right: 2px solid #333; position: relative; }
+        .pdf-frame { width: 100%; height: 100%; border: none; }
+        
+        /* Tactical HUD Elements */
+        .hud-overlay { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.7); padding: 5px 15px; border-left: 3px solid #dc3545; color: #dc3545; font-family: monospace; letter-spacing: 2px; font-size: 0.8rem; pointer-events: none; }
+
+        .notes-sector { flex: 3; display: flex; flex-direction: column; background-color: #1a1a1a; padding: 20px; box-shadow: -5px 0 20px rgba(0,0,0,0.8); border-left: 1px solid #333; }
+        .notes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 15px; }
+        .notes-area { flex-grow: 1; width: 100%; background-color: #262626; color: #ccc; border: 1px solid #444; padding: 15px; border-radius: 2px; resize: none; font-family: 'Consolas', 'Courier New', monospace; line-height: 1.6; font-size: 0.95rem; }
+        .notes-area:focus { outline: none; border-color: #dc3545; background-color: #2a2a2a; color: #fff; }
+        
+        .action-bar { margin-top: 20px; display: flex; gap: 10px; flex-direction: column; }
+        .back-btn { position: absolute; top: 15px; left: 15px; z-index: 1000; opacity: 0.7; transition: all 0.3s; }
+        .back-btn:hover { opacity: 1; transform: translateX(5px); }
+
+        /* Mobile Optimization */
+        @@media (max-width: 768px) {
+            .war-room-container { flex-direction: column; overflow: auto; }
+            .pdf-sector { height: 60vh; flex: none; border-right: none; border-bottom: 2px solid #333; }
+            .notes-sector { height: auto; flex: none; padding: 15px; }
+            .notes-area { height: 300px; }
+            body { overflow: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="/Books" class="btn btn-dark btn-sm back-btn border-secondary text-uppercase fw-bold"><i class="bi bi-chevron-left"></i> Panele Dön</a>
+
+    <div class="war-room-container">
+        <!-- PDF Sector -->
+        <div class="pdf-sector">
+            <iframe src="@Model.PdfPath" class="pdf-frame" title="Tactical Document"></iframe>
+            <div class="hud-overlay">GİZLİ BELGE // SADECE GÖZLER İÇİN</div>
+        </div>
+
+        <!-- Notes Sector -->
+        <div class="notes-sector">
+            <div class="notes-header">
+                <h5 class="text-uppercase text-danger fw-bold m-0" style="letter-spacing: 1px;"><i class="bi bi-pencil-square"></i> Taktik Notlar</h5>
+                <span id="saveStatus" class="badge bg-dark border border-secondary text-secondary">Senkronize</span>
+            </div>
+            
+            <textarea id="tacticalNotes" class="notes-area" placeholder="Stratejik gözlemlerinizi buraya kaydedin, Komutan...">@Model.TacticalNotes</textarea>
+            
+            <div class="action-bar">
+                <div class="mb-2">
+                     <label class="form-label text-muted small text-uppercase fw-bold">Sayfa Senkronizasyonu</label>
+                     <div class="input-group input-group-sm">
+                         <span class="input-group-text bg-dark border-secondary text-secondary">SAYFA</span>
+                         <input type="number" id="currentPageInput" class="form-control bg-dark text-white border-secondary text-center fw-bold" value="@Model.CurrentPage" onchange="updateProgress(this.value)">
+                         <span class="input-group-text bg-dark border-secondary text-secondary">/ @Model.TotalPages</span>
+                     </div>
+                </div>
+
+                <button onclick="saveNotes()" class="btn btn-danger w-100 fw-bold text-uppercase py-2 shadow-sm">
+                    <i class="bi bi-save"></i> Notları Kaydet
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-save timer
+        let typingTimer;
+        const doneTypingInterval = 2000; // 2 seconds
+        const notesInput = document.getElementById('tacticalNotes');
+        const statusBadge = document.getElementById('saveStatus');
+
+        notesInput.addEventListener('keyup', () => {
+            clearTimeout(typingTimer);
+            statusBadge.className = 'badge bg-warning text-dark border border-warning';
+            statusBadge.innerText = 'Yazılıyor...';
+            typingTimer = setTimeout(saveNotes, doneTypingInterval);
+        });
+
+        notesInput.addEventListener('keydown', () => {
+            clearTimeout(typingTimer);
+        });
+
+        function saveNotes() {
+            const notes = notesInput.value;
+            const id = @Model.Id;
+            statusBadge.className = 'badge bg-info text-dark border border-info';
+            statusBadge.innerText = 'Kaydediliyor...';
+
+            $.post('/Books/SaveNotes', { id: id, notes: notes })
+                .done(function() {
+                    statusBadge.className = 'badge bg-success border border-success';
+                    statusBadge.innerText = 'Kaydedildi';
+                    setTimeout(() => { statusBadge.className = 'badge bg-dark border border-secondary text-secondary'; statusBadge.innerText = 'Senkronize'; }, 2000);
+                })
+                .fail(function() {
+                    statusBadge.className = 'badge bg-danger border border-danger';
+                    statusBadge.innerText = 'Hata!';
+                });
+        }
+        
+        function updateProgress(page) {
+             const id = @Model.Id;
+             $.post('/Books/UpdateProgress', { id: id, currentPage: page });
+        }
+    </script>
+</body>
+</html>
