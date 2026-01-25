@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using IronWill.Data;
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -8,8 +10,19 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient<IronWill.Services.GeminiService>();
 builder.Services.AddScoped<IronWill.Services.RankService>();
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<IronWill.Data.ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    if (!string.IsNullOrEmpty(connectionString) && (connectionString.Contains("Host=") || connectionString.Contains("postgres")))
+    {
+        options.UseNpgsql(connectionString);
+    }
+    else
+    {
+        options.UseSqlite(connectionString);
+    }
+});
 
 var app = builder.Build();
 
