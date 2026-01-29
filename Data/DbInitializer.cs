@@ -1,4 +1,5 @@
 using IronWill.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace IronWill.Data
 {
@@ -7,7 +8,8 @@ namespace IronWill.Data
         public static void Initialize(ApplicationDbContext context)
         {
             // context.Database.EnsureCreated(); // Ensure created is fine, but we will skip seeding.
-            context.Database.EnsureCreated();
+            // context.Database.EnsureCreated();
+            context.Database.Migrate();
 
             // Look for any habits.
             if (context.Habits.Any())
