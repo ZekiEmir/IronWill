@@ -62,6 +62,41 @@ namespace IronWill.Controllers
             int totalXP = await _rankService.GetTotalXPAsync();
             var rankInfo = _rankService.GetRank(totalXP);
 
+            // Heatmap Calculations (Last 90 Days)
+            var endDate = DateTime.Today;
+            var startDate = endDate.AddDays(-90);
+            
+            var logs = await _context.MorningLogs
+                .Where(m => m.Date >= startDate && m.Date <= endDate.AddDays(1)) // Include today even if it's late
+                .ToListAsync();
+
+            var heatmapData = new List<HeatmapItem>();
+            for (var d = startDate; d <= endDate; d = d.AddDays(1))
+            {
+                var log = logs.FirstOrDefault(l => l.Date.Date == d);
+                int level = 0;
+                int count = 0;
+
+                if (log != null)
+                {
+                    int trueCount = 0;
+                    if (log.BedMade) trueCount++;
+                    if (log.WaterDrank) trueCount++;
+                    if (!string.IsNullOrEmpty(log.DailyMainGoal)) trueCount++;
+                    
+                    count = trueCount;
+                    if (trueCount == 3) level = 2; // Full Green
+                    else if (trueCount > 0) level = 1; // Pale Green
+                }
+
+                heatmapData.Add(new HeatmapItem
+                {
+                    Date = d,
+                    Level = level,
+                    Count = count
+                });
+            }
+
             var viewModel = new DashboardViewModel
             {
                 DisciplineScore = disciplineScore,
@@ -81,7 +116,8 @@ namespace IronWill.Controllers
                 RankIcon = rankInfo.Icon,
                 RankColor = rankInfo.Color,
                 NextRankXP = rankInfo.NextRankXP,
-                LevelProgress = rankInfo.ProgressPercent
+                LevelProgress = rankInfo.ProgressPercent,
+                HeatmapData = heatmapData
             };
 
             return View(viewModel);

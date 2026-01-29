@@ -1,0 +1,21 @@
+{
+    "name": "IronWill",
+    "short_name": "IronWill",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#121212",
+    "theme_color": "#1f1f1f",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "/images/icon-192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "/images/icon-512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ]
+}

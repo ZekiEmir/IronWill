@@ -1,9 +1,54 @@
 @model IronWill.Models.ViewModels.DashboardViewModel
 @{
     ViewData["Title"] = "Ana Kontrol";
-    
-    ViewData["Title"] = "Ana Kontrol";
 }
+
+<style>
+    .heatmap-grid {
+        display: grid;
+        grid-template-rows: repeat(7, 12px); /* 7 days */
+        grid-auto-flow: column; /* Fill columns first (weeks) */
+        gap: 3px;
+        overflow-x: auto;
+        padding-bottom: 5px;
+    }
+
+    .heatmap-box {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+        background-color: #2d333b; /* Gray (Level 0) */
+        position: relative;
+    }
+
+    .heatmap-box.level-1 {
+        background-color: #0e4429; /* Dark/Pale Green (Level 1) */
+        border: 1px solid #006d32;
+    }
+
+    .heatmap-box.level-2 {
+        background-color: #39d353; /* Bright Green (Level 2) */
+        border: 1px solid #26a641;
+        box-shadow: 0 0 5px #39d353;
+    }
+
+    /* Tooltip */
+    .heatmap-box:hover::after {
+        content: attr(data-title);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #000;
+        color: #fff;
+        padding: 4px 8px;
+        font-size: 10px;
+        white-space: nowrap;
+        border-radius: 4px;
+        z-index: 10;
+        pointer-events: none;
+    }
+</style>
 
 <!-- Top Header Info -->
 <div class="d-flex justify-content-between align-items-center mb-5 border-bottom border-secondary pb-3">
@@ -64,13 +109,30 @@
     </div>
 
     <!-- Right Col: Charts & Stats -->
-    <!-- Right Col: Charts & Stats -->
     <div class="col-md-8">
-        <!-- Chart Container -->
+        <!-- Heatmap Container -->
         <div class="card bg-dark border-secondary mb-4">
             <div class="card-body">
-                <h5 class="card-title text-neon"><i class="fas fa-chart-line"></i> PERFORMANS ANALİZİ (Son 7 Gün)</h5>
-                <canvas id="disciplineChart" height="100"></canvas>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                     <h5 class="card-title text-neon mb-0"><i class="fas fa-th"></i> GÖRSEL İSTİHBARAT (Son 90 Gün)</h5>
+                     <div class="d-flex align-items-center gap-2 small">
+                         <span class="text-muted">Az</span>
+                         <div style="width:10px; height:10px; background:#2d333b"></div>
+                         <div style="width:10px; height:10px; background:#0e4429"></div>
+                         <div style="width:10px; height:10px; background:#39d353; box-shadow: 0 0 3px #39d353;"></div>
+                         <span class="text-white">Çok</span>
+                     </div>
+                </div>
+               
+                <!-- GitHub-style Heatmap -->
+                <div class="heatmap-grid">
+                    @foreach (var item in Model.HeatmapData)
+                    {
+                        <div class="heatmap-box level-@item.Level" 
+                             data-title="@item.Date.ToString("dd MMM"): @item.Count Görev">
+                        </div>
+                    }
+                </div>
             </div>
         </div>
 
@@ -186,28 +248,7 @@
 
 @section Scripts {
     <script>
-        // Chart Configuration
-        const ctx = document.getElementById('disciplineChart').getContext('2d');
-        const disciplineChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
-                datasets: [{
-                    label: 'Disiplin',
-                    data: [65, 59, 70, 71, 56, 65, @Model.DisciplineScore], // Dummy data + current score
-                    borderColor: '#0f0',
-                    backgroundColor: 'rgba(0, 255, 0, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true, max: 100, grid: { color: '#333' } },
-                    x: { grid: { color: '#333' } }
-                }
-            }
-        });
+       // No Charts Needed - Removed Chart.js dependency if this was the only chart
+       // Heatmap is pure CSS/HTML
     </script>
 }

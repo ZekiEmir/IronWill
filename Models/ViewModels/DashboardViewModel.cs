@@ -27,5 +27,7 @@ namespace IronWill.Models.ViewModels
         public int CurrentXP { get; set; }
         public int NextRankXP { get; set; }
         public int LevelProgress { get; set; }
+
+        public List<HeatmapItem> HeatmapData { get; set; } = new List<HeatmapItem>();
     }
 }
