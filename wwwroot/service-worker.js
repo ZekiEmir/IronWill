@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ironwill-cache-v1';
+const CACHE_NAME = 'ironwill-cache-v2';
 const ASSETS_TO_CACHE = [
     '/',
     '/css/site.css',

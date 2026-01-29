@@ -21,13 +21,34 @@ namespace IronWill.Controllers
         {
             var startOfDay = DateTime.Today;
             var todayFoodLogs = await _context.FoodLogs.Where(f => f.Date >= startOfDay).ToListAsync();
+            
+            // Chart Logic: Last 7 Days Volume
+            var last7Days = DateTime.Today.AddDays(-6);
+            var chartLogs = await _context.WorkoutLogs
+                .Where(w => w.Date >= last7Days)
+                .ToListAsync();
+
+            var labels = new List<string>();
+            var values = new List<double>();
+
+            for (int i = 0; i < 7; i++)
+            {
+                var day = last7Days.AddDays(i);
+                labels.Add(day.ToString("dd MMM")); // 29 Jan
+                
+                var daysLogs = chartLogs.Where(l => l.Date.Date == day.Date).ToList();
+                double dailyVolume = daysLogs.Sum(l => l.WeightKg * l.Reps);
+                values.Add(dailyVolume);
+            }
 
             var viewModel = new GymViewModel
             {
-                History = await _context.WorkoutLogs.OrderByDescending(w => w.Date).Take(50).ToListAsync(),
+                History = await _context.WorkoutLogs.OrderByDescending(w => w.Date).Take(20).ToListAsync(),
                 NewLog = new WorkoutLog { Date = DateTime.Now },
                 TodayFoodLogs = todayFoodLogs,
-                TotalProteinToday = todayFoodLogs.Sum(f => f.ProteinAmount)
+                TotalProteinToday = todayFoodLogs.Sum(f => f.ProteinAmount),
+                ChartLabels = labels,
+                ChartValues = values
             };
             return View(viewModel);
         }
@@ -45,7 +66,7 @@ namespace IronWill.Controllers
                 await _context.SaveChangesAsync();
 
                 // XP REWARD
-                await _rankService.AddXPAsync("Gym", $"Antrenman: {log.ExerciseName}", 100);
+                await _rankService.AddXPAsync("Gym", $"Antrenman: {log.ExerciseName}", 20);
 
                 return RedirectToAction(nameof(Index));
             }

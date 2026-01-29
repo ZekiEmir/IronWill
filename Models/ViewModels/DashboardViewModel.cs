@@ -28,6 +28,15 @@ namespace IronWill.Models.ViewModels
         public int NextRankXP { get; set; }
         public int LevelProgress { get; set; }
 
+        // Step 2 Widgets Data
+        public TodoItem NextMission { get; set; }
+        public decimal PendingEarnings { get; set; }
+
         public List<HeatmapItem> HeatmapData { get; set; } = new List<HeatmapItem>();
+
+        // Step 4: Visual Intelligence
+        public List<string> ChartLabels { get; set; } = new List<string>();
+        public List<int> DisciplineChartValues { get; set; } = new List<int>();
+        public List<double> SleepChartValues { get; set; } = new List<double>();
     }
 }

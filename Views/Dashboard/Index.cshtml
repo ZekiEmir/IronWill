@@ -1,254 +1,252 @@
 @model IronWill.Models.ViewModels.DashboardViewModel
 @{
-    ViewData["Title"] = "Ana Kontrol";
+    ViewData["Title"] = "Savaş Odası";
 }
 
-<style>
-    .heatmap-grid {
-        display: grid;
-        grid-template-rows: repeat(7, 12px); /* 7 days */
-        grid-auto-flow: column; /* Fill columns first (weeks) */
-        gap: 3px;
-        overflow-x: auto;
-        padding-bottom: 5px;
-    }
-
-    .heatmap-box {
-        width: 12px;
-        height: 12px;
-        border-radius: 2px;
-        background-color: #2d333b; /* Gray (Level 0) */
-        position: relative;
-    }
-
-    .heatmap-box.level-1 {
-        background-color: #0e4429; /* Dark/Pale Green (Level 1) */
-        border: 1px solid #006d32;
-    }
-
-    .heatmap-box.level-2 {
-        background-color: #39d353; /* Bright Green (Level 2) */
-        border: 1px solid #26a641;
-        box-shadow: 0 0 5px #39d353;
-    }
-
-    /* Tooltip */
-    .heatmap-box:hover::after {
-        content: attr(data-title);
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #000;
-        color: #fff;
-        padding: 4px 8px;
-        font-size: 10px;
-        white-space: nowrap;
-        border-radius: 4px;
-        z-index: 10;
-        pointer-events: none;
-    }
-</style>
-
-<!-- Top Header Info -->
-<div class="d-flex justify-content-between align-items-center mb-5 border-bottom border-secondary pb-3">
-    <div>
-        <h1 class="display-5 fw-bold text-neon mb-0">SAVAŞ ODASI</h1>
-        <p class="text-muted mb-0">Hoşgeldin Asker. Cephe stabil.</p>
-    </div>
-    <div class="text-end position-relative" style="min-width: 250px;">
-        <div class="d-flex align-items-center justify-content-end gap-3 mb-1">
-            <div class="text-end">
-                <div class="h3 fw-bold @Model.RankColor mb-0">@Model.RankTitle</div>
-                <small class="text-muted">@Model.CurrentXP XP</small>
-            </div>
-            <i class="@Model.RankIcon fa-3x @Model.RankColor"></i>
-        </div>
+<!-- GRID SYSTEM START -->
+<div class="row g-4">
+    
+    <!-- LEFT COLUMN (MAIN STATS) -->
+    <div class="col-lg-8">
         
-        <!-- XP Progress Bar -->
-        <div class="progress bg-dark border border-secondary" style="height: 10px;">
-            <div class="progress-bar @Model.RankColor.Replace("text", "bg")" role="progressbar" style="width: @Model.LevelProgress%" aria-valuenow="@Model.LevelProgress" aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
-        <div class="d-flex justify-content-between">
-            <small class="text-muted" style="font-size: 0.7rem;">0%</small>
-            <small class="text-muted" style="font-size: 0.7rem;">SONRAKİ RÜTBE: @Model.NextRankXP XP</small>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <!-- Left Col: Gauge & Panic -->
-    <div class="col-md-4 text-center border-end border-secondary">
-        <h4 class="text-muted mb-4">DURUM RAPORU</h4>
-        
-        <!-- Gauge -->
-        @{
-            string strokeColor = Model.DisciplineScore >= 80 ? "#0f0" : (Model.DisciplineScore >= 50 ? "#ffc107" : "#f00");
-        }
-        <div class="gauge-container mb-3">
-            <svg viewBox="0 0 36 36" class="circular-chart">
-                <path class="circle-bg"
-                      d="M18 2.0845
-                         a 15.9155 15.9155 0 0 1 0 31.831
-                         a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <path class="circle"
-                      stroke-dasharray="@Model.DisciplineScore, 100"
-                      stroke="@strokeColor"
-                      d="M18 2.0845
-                         a 15.9155 15.9155 0 0 1 0 31.831
-                         a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <text x="18" y="20.35" class="percentage">@Model.DisciplineScore</text>
-            </svg>
-        </div>
-        <p class="lead">DİSİPLİN PUANI</p>
-
-        <!-- Panic Button -->
-        <button type="button" class="btn btn-outline-danger w-75 mt-4" data-bs-toggle="modal" data-bs-target="#panicModal">
-            <i class="fas fa-exclamation-triangle"></i> ACİL DURUM
-        </button>
-    </div>
-
-    <!-- Right Col: Charts & Stats -->
-    <div class="col-md-8">
-        <!-- Heatmap Container -->
-        <div class="card bg-dark border-secondary mb-4">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                     <h5 class="card-title text-neon mb-0"><i class="fas fa-th"></i> GÖRSEL İSTİHBARAT (Son 90 Gün)</h5>
-                     <div class="d-flex align-items-center gap-2 small">
-                         <span class="text-muted">Az</span>
-                         <div style="width:10px; height:10px; background:#2d333b"></div>
-                         <div style="width:10px; height:10px; background:#0e4429"></div>
-                         <div style="width:10px; height:10px; background:#39d353; box-shadow: 0 0 3px #39d353;"></div>
-                         <span class="text-white">Çok</span>
-                     </div>
+        <!-- 1. RANK & PROGRESS CARD -->
+        <div class="card bg-card border border-secondary shadow-lg mb-4">
+            <div class="card-body d-flex align-items-center justify-content-between p-4">
+                <div class="d-flex align-items-center">
+                    <div class="display-1 me-4 text-neon">
+                        @Html.Raw(Model.RankIcon)
+                    </div>
+                    <div>
+                        <h6 class="text-muted text-uppercase mb-1">MEVCUT RÜTBE</h6>
+                        <h2 class="fw-bold mb-0 text-white display-6">@Model.RankTitle</h2>
+                        <small class="text-white-50">XP: @Model.CurrentXP / @Model.NextRankXP</small>
+                    </div>
                 </div>
-               
-                <!-- GitHub-style Heatmap -->
-                <div class="heatmap-grid">
-                    @foreach (var item in Model.HeatmapData)
-                    {
-                        <div class="heatmap-box level-@item.Level" 
-                             data-title="@item.Date.ToString("dd MMM"): @item.Count Görev">
+                <div class="" style="width: 40%;">
+                     <h6 class="text-end text-neon mb-1">%@Model.LevelProgress</h6>
+                     <div class="progress bg-dark border border-secondary" style="height: 10px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: @Model.LevelProgress%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. WIDGET ROW -->
+        <div class="row g-4 mb-4">
+            
+            <!-- FOCUS WIDGET (Big Pomodoro) -->
+            <div class="col-md-6">
+                <div class="card bg-card border border-warning h-100">
+                    <div class="card-header border-warning d-flex justify-content-between align-items-center">
+                        <span class="text-warning fw-bold"><i class="fas fa-crosshairs me-2"></i> ODAK MODU</span>
+                        <span class="badge bg-warning text-dark">ACTIVE</span>
+                    </div>
+                    <div class="card-body text-center d-flex flex-column justify-content-center">
+                         <h1 class="display-3 fw-bold text-white mb-0" id="mainPomodoro">25:00</h1>
+                         <p class="text-white-50 mb-3">Tek bir göreve kilitlen.</p>
+                         <button class="btn btn-outline-warning w-100 fw-bold" onclick="startTimer()">
+                            BAŞLAT
+                         </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEXT MISSION WIDGET -->
+            <div class="col-md-6">
+                <div class="card bg-card border border-danger h-100">
+                     <div class="card-header border-danger">
+                        <span class="text-danger fw-bold"><i class="fas fa-flag me-2"></i> SIRADAKİ GÖREV</span>
+                    </div>
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        @if (Model.NextMission != null)
+                        {
+                            <h4 class="text-white fw-bold mb-3">"@Model.NextMission.Text"</h4>
+                            <form asp-action="ToggleTodo" method="post" class="mt-auto">
+                                <input type="hidden" name="id" value="@Model.NextMission.Id" />
+                                <button type="submit" class="btn btn-danger w-100 fw-bold">
+                                    <i class="fas fa-check"></i> TAMAMLANDI (+50 XP)
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-clipboard-check fa-3x mb-3"></i>
+                                <p>Tüm görevler tamamlandı komutanım.</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. VISUAL INTELLIGENCE (CHARTS) -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-8">
+                <div class="card bg-card border border-primary h-100">
+                    <div class="card-header border-primary">
+                        <span class="text-primary fw-bold"><i class="fas fa-chart-line me-2"></i> DİSİPLİN TRENDİ (XP)</span>
+                    </div>
+                    <div class="card-body">
+                         <div style="height: 250px;">
+                            <canvas id="disciplineChart"></canvas>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-card border border-purple h-100">
+                    <div class="card-header border-purple">
+                        <span class="text-white fw-bold"><i class="fas fa-bed me-2"></i> UYKU ANALİZİ</span>
+                    </div>
+                    <div class="card-body">
+                        <div style="height: 250px;">
+                            <canvas id="sleepChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. HEATMAP & ACTIVITY -->
+        <div class="card bg-card border border-secondary mb-4">
+            <div class="card-header border-secondary">
+                 <span class="text-neon fw-bold"><i class="fas fa-th me-2"></i> GÖRSEL İSTİHBARAT (SABAH İÇTİMASI)</span>
+            </div>
+            <div class="card-body">
+                 <div class="heatmap-grid">
+                    @foreach (var day in Model.HeatmapData)
+                    {
+                        var lvlClass = day.Level == 2 ? "level-2" : (day.Level == 1 ? "level-1" : "level-0");
+                        <div class="heatmap-box @lvlClass" 
+                             data-title="@day.Date.ToShortDateString() : @day.Count Görev"></div>
                     }
                 </div>
+                <!-- ... legend ... -->
             </div>
         </div>
 
-        <!-- Quick Stats Grid -->
-        <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <div class="p-3 border border-secondary bg-dark text-center">
-                    <h3 class="text-white">@Model.TotalCleanDays</h3>
-                    <small class="text-muted">TEMİZ GÜN</small>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="p-3 border border-secondary bg-dark text-center">
-                    <h3 class="text-white">@Model.ActiveProjectsCount</h3>
-                    <small class="text-muted">AKTİF GÖREV</small>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="p-3 border border-secondary bg-dark text-center">
-                    <h3 class="text-success">@Model.TotalProjectEarnings.ToString("N0")₺</h3>
-                    <small class="text-muted">KASA</small>
-                </div>
-            </div>
-        </div>
-
-        <!-- To-Do List (War Room Tasks) -->
-        <div class="card bg-dark border-secondary mb-4">
-            <div class="card-header border-secondary d-flex justify-content-between align-items-center">
-                <h5 class="text-neon mb-0"><i class="fas fa-tasks"></i> GÜNLÜK EMİRLER</h5>
-                <span class="badge bg-secondary">@Model.Todos.Count(t => !t.IsCompleted) Bekleyen</span>
-            </div>
+    </div>
+    
+    <!-- RIGHT COLUMN (SIDE STATS) -->
+    <div class="col-lg-4">
+        <!-- ... existing widgets ... -->
+        
+        <!-- FINANCE WIDGET (MINI) -->
+        <div class="card bg-card border border-success mb-4">
             <div class="card-body">
-                <!-- Add Task Form -->
-                <form asp-action="AddTodo" method="post" class="d-flex gap-2 mb-3">
-                    <input type="text" name="text" class="form-control bg-dark text-white border-secondary" placeholder="Yeni görev emri..." required>
-                    <button type="submit" class="btn btn-success"><i class="fas fa-plus"></i></button>
-                </form>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="text-success fw-bold mb-0"><i class="fas fa-lira-sign me-2"></i> FİNANS DURUMU</h6>
+                    <span class="badge bg-success text-dark">AYLIK</span>
+                </div>
+                
+                <h3 class="text-white fw-bold mb-1">₺@Model.TotalProjectEarnings.ToString("N0")</h3>
+                <small class="text-white-50 mb-3 d-block">Hedef: ₺@Model.TargetEarningsGoal.ToString("N0")</small>
 
-                <!-- Task List -->
-                @if (Model.Todos.Any())
-                {
-                    <ul class="list-group list-group-flush">
-                        @foreach (var todo in Model.Todos)
-                        {
-                            <li class="list-group-item bg-dark border-secondary d-flex justify-content-between align-items-center ps-0 pe-0">
-                                <form asp-action="ToggleTodo" method="post" class="d-flex align-items-center gap-2 flex-grow-1" style="cursor: pointer;" onclick="this.submit()">
-                                    <input type="hidden" name="id" value="@todo.Id" />
-                                    <div class="form-check">
-                                        <input class="form-check-input bg-dark border-success" type="checkbox" @(todo.IsCompleted ? "checked" : "") style="pointer-events: none;">
-                                    </div>
-                                    <span class="@(todo.IsCompleted ? "text-muted text-decoration-line-through" : "text-white")">@todo.Text</span>
-                                </form>
-                                <form asp-action="DeleteTodo" method="post" class="ms-2">
-                                    <input type="hidden" name="id" value="@todo.Id" />
-                                    <button type="submit" class="btn btn-sm btn-link text-danger p-0"><i class="fas fa-times"></i></button>
-                                </form>
-                            </li>
-                        }
-                    </ul>
+                @{
+                    var financePercent = (int)((Model.TotalProjectEarnings / Model.TargetEarningsGoal) * 100);
+                    if(financePercent > 100) financePercent = 100;
                 }
-                else
-                {
-                    <p class="text-muted text-center my-3">Cephe temiz. Emir bekleniyor.</p>
-                }
+                
+                <div class="progress bg-dark border border-secondary" style="height: 6px;">
+                    <div class="progress-bar bg-success" style="width: @financePercent%"></div>
+                </div>
+                <div class="mt-3 small text-muted">
+                    <span class="text-white"><i class="fas fa-clock text-warning me-1"></i> ₺@Model.PendingEarnings.ToString("N0")</span> bekleyen ödeme.
+                </div>
             </div>
         </div>
 
-        <!-- Habits List with Empty State -->
-        <h5 class="text-muted mb-3"><i class="fas fa-link"></i> AKTİF ZİNCİRLER</h5>
-        @if (!Model.Habits.Any())
-        {
-             <div class="alert alert-dark border-secondary text-center opacity-75">
-                <i class="fas fa-wind fa-2x mb-2 text-muted"></i>
-                <p class="mb-2">Takip edilen alışkanlık yok.</p>
-                <a asp-controller="Habit" asp-action="Create" class="btn btn-sm btn-outline-success">HEDEF BELİRLE</a>
+        <!-- HABIT WIDGET (MINI) -->
+        <div class="card bg-card border border-info mb-4">
+            <div class="card-header border-info">
+                 <h6 class="text-info fw-bold mb-0"><i class="fas fa-tasks me-2"></i> ZİNCİR KONTROL</h6>
             </div>
-        }
-        else
-        {
-            <div class="list-group">
-                @foreach (var habit in Model.Habits)
+            <div class="list-group list-group-flush">
+                @foreach (var habit in Model.Habits.Take(3))
                 {
-                    var cleanDays = (DateTime.Now - habit.LastRelapseDate).Days;
-                    <div class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between align-items-center">
-                        <div>
-                            <i class="@habit.Icon text-muted me-2"></i> @habit.Name
-                        </div>
-                        <span class="badge bg-success rounded-pill">@cleanDays Gün</span>
-                    </div>
+                     <div class="list-group-item bg-transparent border-secondary text-white d-flex justify-content-between align-items-center">
+                         <span><i class="@habit.Icon me-2 text-muted"></i> @habit.Name</span>
+                         <a href="@Url.Action("Index", "Habit")" class="btn btn-sm btn-outline-secondary py-0"><i class="fas fa-check"></i></a>
+                     </div>
                 }
-            </div>
-        }
-    </div>
-</div>
-
-<!-- Panic Modal -->
-<div class="modal fade" id="panicModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-danger">
-                <h5 class="modal-title text-danger-glow"><i class="fas fa-skull"></i> SAKİN OL ASKER</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <p class="lead">"@Model.DailyQuote"</p>
-                <hr class="border-danger">
-                <p>Zayıflığa teslim olma. Disiplinin acısı, pişmanlığın acısından çok daha hafiftir.</p>
-                <button class="btn btn-danger w-100 mt-3" data-bs-dismiss="modal">HATTI TUTACAĞIM</button>
+                <a href="@Url.Action("Index", "Habit")" class="list-group-item bg-transparent text-white-50 text-center small">
+                    Tümünü Gör
+                </a>
             </div>
         </div>
+
+        <!-- DAILY QUOTE (Small) -->
+        <div class="card bg-card border border-secondary">
+            <div class="card-body text-center p-4">
+                <i class="fas fa-quote-left text-muted fa-2x mb-3"></i>
+                <p class="text-white fst-italic">"@Model.DailyQuote"</p>
+            </div>
+        </div>
+
     </div>
 </div>
 
-@section Scripts {
-    <script>
-       // No Charts Needed - Removed Chart.js dependency if this was the only chart
-       // Heatmap is pure CSS/HTML
-    </script>
-}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Sync Main Pomodoro with Layout Script if possible, or just duplicate logic for visual
+    if (typeof updateDisplay === "function") {
+        const originalUpdateDisplay = updateDisplay;
+        updateDisplay = function() {
+            originalUpdateDisplay();
+            let display = document.getElementById('pomodoro').innerText;
+            var mainEl = document.getElementById('mainPomodoro');
+            if(mainEl) mainEl.innerText = display;
+        }
+    }
+
+    // CHARTS INITIALIZATION
+    document.addEventListener("DOMContentLoaded", function () {
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { grid: { display: false }, ticks: { color: '#666' } },
+                y: { grid: { color: '#222' }, ticks: { color: '#666' }, beginAtZero: true }
+            },
+            plugins: { legend: { display: false } }
+        };
+
+        const chartLabels = @Html.Raw(Json.Serialize(Model.ChartLabels));
+        const disciplineValues = @Html.Raw(Json.Serialize(Model.DisciplineChartValues));
+        const sleepValues = @Html.Raw(Json.Serialize(Model.SleepChartValues));
+
+        // Discipline Chart (Line)
+        new Chart(document.getElementById('disciplineChart'), {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'XP Kazanımı',
+                    data: disciplineValues,
+                    borderColor: '#0d6efd',
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: commonOptions
+        });
+
+        // Sleep Chart (Bar)
+        new Chart(document.getElementById('sleepChart'), {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Uyku (Saat)',
+                    data: sleepValues,
+                    backgroundColor: '#6f42c1',
+                    borderRadius: 4
+                }]
+            },
+            options: commonOptions
+        });
+    });
+</script>

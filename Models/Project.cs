@@ -10,9 +10,11 @@ namespace IronWill.Models
         
         public string ProjectName { get; set; }
         
-        public decimal AgreedPrice { get; set; }
+        public decimal ContractAmount { get; set; }
         
         public decimal PaidAmount { get; set; }
+        
+        public DateTime Deadline { get; set; }
         
         public string Status { get; set; } // "Pending", "Active", "Completed"
         

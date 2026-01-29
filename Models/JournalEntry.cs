@@ -10,5 +10,6 @@ namespace IronWill.Models
         public string Content { get; set; } = string.Empty;
         public string Mood { get; set; } = "Stoic"; // Default
         public int SelfRating { get; set; } // 1-10
+        public double SleepHours { get; set; }
     }
 }

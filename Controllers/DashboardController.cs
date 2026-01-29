@@ -97,6 +97,33 @@ namespace IronWill.Controllers
                 });
             }
 
+            // Step 4: Visual Intelligence (Charts - Last 7 Days)
+            var chartStartDate = DateTime.Today.AddDays(-6);
+            
+            // 1. Discipline (XP) Chart
+            var xpLogs = await _context.XPHistory.Where(x => x.Date >= chartStartDate).ToListAsync();
+            
+            // 2. Sleep Chart
+            var sleepLogs = await _context.JournalEntries.Where(j => j.Date >= chartStartDate).ToListAsync();
+
+            var chartLabels = new List<string>();
+            var disciplineValues = new List<int>();
+            var sleepValues = new List<double>();
+
+            for (int i = 0; i < 7; i++)
+            {
+                var day = chartStartDate.AddDays(i);
+                chartLabels.Add(day.ToString("dd MMM"));
+
+                // Sum XP for that day
+                int dayXP = xpLogs.Where(x => x.Date.Date == day.Date).Sum(x => x.Points);
+                disciplineValues.Add(dayXP);
+
+                // Get Sleep for that day (last entry if multiple, or avg)
+                var sleepEntry = sleepLogs.Where(j => j.Date.Date == day.Date).OrderByDescending(j => j.Date).FirstOrDefault();
+                sleepValues.Add(sleepEntry != null ? sleepEntry.SleepHours : 0);
+            }
+
             var viewModel = new DashboardViewModel
             {
                 DisciplineScore = disciplineScore,
@@ -117,7 +144,16 @@ namespace IronWill.Controllers
                 RankColor = rankInfo.Color,
                 NextRankXP = rankInfo.NextRankXP,
                 LevelProgress = rankInfo.ProgressPercent,
-                HeatmapData = heatmapData
+                HeatmapData = heatmapData,
+                
+                // Step 2 Data
+                NextMission = todos.FirstOrDefault(t => !t.IsCompleted),
+                PendingEarnings = activeProjects.Sum(p => p.PaidAmount),
+                
+                // Step 4 Data
+                ChartLabels = chartLabels,
+                DisciplineChartValues = disciplineValues,
+                SleepChartValues = sleepValues
             };
 
             return View(viewModel);
@@ -139,6 +175,10 @@ namespace IronWill.Controllers
             log.Date = DateTime.Now;
             _context.MorningLogs.Add(log);
             await _context.SaveChangesAsync();
+
+            // XP REWARD
+            await _rankService.AddXPAsync("Morning", "Sabah İçtiması", 10);
+
             return Ok();
         }
 
@@ -161,6 +201,12 @@ namespace IronWill.Controllers
             {
                 item.IsCompleted = !item.IsCompleted;
                 await _context.SaveChangesAsync();
+
+                // XP REWARD if completed
+                if (item.IsCompleted)
+                {
+                    await _rankService.AddXPAsync("Mission", "Görev Tamamlandı", 50);
+                }
             }
             return RedirectToAction(nameof(Index));
         }
@@ -175,6 +221,42 @@ namespace IronWill.Controllers
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SubmitNightLog(NightLogViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var entry = new JournalEntry
+                {
+                    Date = DateTime.Now,
+                    Title = $"GECE RAPORU - {DateTime.Now:dd.MM.yyyy}",
+                    Mood = model.WillControlled ? "Disiplinli" : "Zayıf",
+                    SelfRating = model.WillControlled ? 10 : 5,
+                    SleepHours = model.SleepHours,
+                    Content = $@"
+**İrade Hakimiyeti:** {(model.WillControlled ? "Evet" : "Hayır")}
+
+**Zaman Kaybı:**
+{model.TimeWasted}
+
+**Yarının Hedefi:**
+{model.TomorrowGoal}
+"
+                };
+
+                _context.JournalEntries.Add(entry);
+                await _context.SaveChangesAsync();
+
+                // XP Reward
+                await _rankService.AddXPAsync("NightWatch", "Gece Raporu", 30);
+
+                TempData["NightLogSuccess"] = "Rapor alındı. İyi istirahatler Asker. Görev tamamlandı.";
+                return RedirectToAction("Index");
+            }
+
+            return RedirectToAction("Index");
         }
     }
 }

@@ -31,8 +31,8 @@ namespace IronWill.Data
 
             var projects = new Project[]
             {
-                new Project{ClientName="Contoso Ltd", ProjectName="E-Commerce API", AgreedPrice=5000, PaidAmount=2000, Status="Active", ProgressPercentage=40},
-                new Project{ClientName="Fabrikam Inc", ProjectName="Inventory System", AgreedPrice=3000, PaidAmount=0, Status="Pending", ProgressPercentage=0}
+                new Project{ClientName="Contoso Ltd", ProjectName="E-Commerce API", ContractAmount=5000, PaidAmount=2000, Status="Active", ProgressPercentage=40, Deadline=DateTime.Now.AddDays(30)},
+                new Project{ClientName="Fabrikam Inc", ProjectName="Inventory System", ContractAmount=3000, PaidAmount=0, Status="Pending", ProgressPercentage=0, Deadline=DateTime.Now.AddDays(14)}
             };
             foreach (Project p in projects)
             {

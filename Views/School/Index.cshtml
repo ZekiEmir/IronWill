@@ -1,107 +1,183 @@
 @model IEnumerable<IronWill.Models.Subject>
+
 @{
-    ViewData["Title"] = "Academic Radar";
+    ViewData["Title"] = "Akademi (Kanban)";
 }
 
-<h1 class="text-neon mb-4">AKADEMİK RADAR</h1>
-<p>
-    <a asp-action="CreateSubject" class="btn btn-outline-info"><i class="fas fa-plus"></i> DERS EKLE</a>
-</p>
-
-@if (!Model.Any())
-{
-    <div class="empty-state">
-        <i class="fas fa-book-dead fa-3x text-muted mb-3"></i>
-        <h4 class="text-white">Sahada Sessizlik</h4>
-        <p class="text-muted">Henüz aktif bir cephe yok Komutan. Yeni bir ders ekle ve saldırıya başla.</p>
-        <a asp-action="CreateSubject" class="btn btn-info mt-2">MÜFREDAT OLUŞTUR</a>
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+             <h1 class="display-5 fw-bold text-danger"><i class="fas fa-graduation-cap me-3"></i>AKADEMİ</h1>
+             <p class="lead text-muted">"Bilgi güçtür."</p>
+        </div>
+        <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
+            <i class="fas fa-plus"></i> Yeni Ders
+        </button>
     </div>
-}
-else
-{
-    <div class="accordion" id="subjectsAccordion">
-        @foreach (var subject in Model) {
-        var completedTopics = subject.Topics.Count(t => t.IsCompleted);
-        var totalTopics = subject.Topics.Count;
-        var progress = totalTopics > 0 ? (int)((double)completedTopics / totalTopics * 100) : 0;
-        var collapseId = "collapse-" + subject.Id;
-        var headerId = "heading-" + subject.Id;
+</div>
 
-        <div class="accordion-item bg-dark border-secondary mb-3">
-            <h2 class="accordion-header" id="@headerId">
-                <button class="accordion-button collapsed bg-dark text-white border-bottom border-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId">
-                    <div class="d-flex w-100 justify-content-between align-items-center me-3">
-                        <span class="fw-bold text-neon">@subject.Name</span>
-                        <div class="d-flex align-items-center">
-                            <span class="badge bg-secondary me-3">@subject.TargetHoursPerWeek h/w</span>
-                            <div class="progress" style="width: 100px; height: 10px;">
-                                <div id="progress-bar-@subject.Id" class="progress-bar bg-info" role="progressbar" style="width: @progress%"></div>
+<!-- KANBAN BOARD -->
+<div class="row g-4 h-100">
+    
+    <!-- COL 1: YAPILACAK (TODO) -->
+    <div class="col-md-4">
+        <div class="card bg-card border border-secondary shadow-lg h-100">
+            <div class="card-header border-bottom border-secondary bg-dark bg-opacity-50">
+                <span class="text-white fw-bold"><i class="fas fa-list me-2"></i> YAPILACAK</span>
+                 <span class="badge bg-secondary float-end" id="count-todo">0</span>
+            </div>
+            <div class="card-body p-3 kanban-col" id="col-todo">
+                @foreach(var subject in Model) {
+                    foreach(var task in subject.Topics.Where(t => t.Status == "Todo" || string.IsNullOrEmpty(t.Status))) {
+                        <div class="card bg-dark border-start border-4 border-secondary mb-3 kanban-item">
+                            <div class="card-body p-3">
+                                <small class="text-danger fw-bold text-uppercase">@subject.Name</small>
+                                <p class="text-white mb-2">@task.Title</p>
+                                <div class="d-flex justify-content-end">
+                                    <form asp-action="MoveTopic" method="post">
+                                        <input type="hidden" name="id" value="@task.Id" />
+                                        <input type="hidden" name="status" value="Doing" />
+                                        <button class="btn btn-sm btn-outline-light" title="Başla"><i class="fas fa-play"></i></button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </button>
-            </h2>
-            <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="@headerId" data-bs-parent="#subjectsAccordion">
-                <div class="accordion-body">
-                    <ul class="list-group list-group-flush mb-3" id="topic-list-@subject.Id">
-                        @foreach(var topic in subject.Topics)
-                        {
-                            <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between align-items-center p-2">
-                                <div class="form-check">
-                                    <input class="form-check-input topic-checkbox" type="checkbox" data-topic-id="@topic.Id" data-subject-id="@subject.Id" id="topic-@topic.Id" @(topic.IsCompleted ? "checked" : "")>
-                                    <label class="form-check-label @(topic.IsCompleted ? "text-decoration-line-through text-muted" : "")" for="topic-@topic.Id" id="label-@topic.Id">
-                                        @topic.Title
-                                    </label>
-                                </div>
-                            </li>
-                        }
-                    </ul>
-
-                    <form asp-action="AddTopic" class="input-group">
-                        <input type="hidden" name="subjectId" value="@subject.Id" />
-                        <input type="text" name="title" class="form-control bg-dark text-white border-secondary" placeholder="Yeni Konu..." required />
-                        <button class="btn btn-secondary" type="submit"><i class="fas fa-plus"></i></button>
-                    </form>
+                    }
+                }
+                <!-- Quick Add Task -->
+                 <div class="d-grid mt-3">
+                    <button class="btn btn-sm btn-outline-secondary border-dashed" data-bs-toggle="modal" data-bs-target="#addTaskModal">
+                        <i class="fas fa-plus"></i> Görev Ekle
+                    </button>
                 </div>
             </div>
         </div>
-    }
     </div>
-}
 
-@section Scripts {
-    <script>
-        document.querySelectorAll('.topic-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const topicId = this.dataset.topicId;
-                const subjectId = this.dataset.subjectId;
-                const isChecked = this.checked;
-                const label = document.getElementById('label-' + topicId);
-
-                // Optimistic UI Update
-                if(isChecked) {
-                    label.classList.add('text-decoration-line-through', 'text-muted');
-                } else {
-                    label.classList.remove('text-decoration-line-through', 'text-muted');
-                }
-
-                // AJAX Request
-                fetch('/School/ToggleTopicAjax', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `id=${topicId}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if(data.success) {
-                        // Update Progress Bar
-                        const progressBar = document.getElementById('progress-bar-' + subjectId);
-                        progressBar.style.width = data.progress + '%';
+    <!-- COL 2: SÜRÜYOR (DOING) -->
+    <div class="col-md-4">
+        <div class="card bg-card border border-warning shadow-lg h-100">
+            <div class="card-header border-bottom border-warning bg-warning bg-opacity-10">
+                <span class="text-warning fw-bold"><i class="fas fa-spinner fa-spin me-2"></i> SÜRÜYOR</span>
+                <span class="badge bg-warning text-dark float-end" id="count-doing">0</span>
+            </div>
+            <div class="card-body p-3 kanban-col" id="col-doing">
+                 @foreach(var subject in Model) {
+                    foreach(var task in subject.Topics.Where(t => t.Status == "Doing")) {
+                        <div class="card bg-dark border-start border-4 border-warning mb-3 kanban-item">
+                            <div class="card-body p-3">
+                                <small class="text-danger fw-bold text-uppercase">@subject.Name</small>
+                                <p class="text-white mb-2">@task.Title</p>
+                                <div class="d-flex justify-content-between">
+                                     <form asp-action="MoveTopic" method="post">
+                                        <input type="hidden" name="id" value="@task.Id" />
+                                        <input type="hidden" name="status" value="Todo" />
+                                        <button class="btn btn-sm btn-outline-secondary" title="Geri"><i class="fas fa-arrow-left"></i></button>
+                                    </form>
+                                    <form asp-action="MoveTopic" method="post">
+                                        <input type="hidden" name="id" value="@task.Id" />
+                                        <input type="hidden" name="status" value="Done" />
+                                        <button class="btn btn-sm btn-success" title="Bitir"><i class="fas fa-check"></i></button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     }
-                });
-            });
-        });
-    </script>
-}
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- COL 3: BİTTİ (DONE) -->
+    <div class="col-md-4">
+        <div class="card bg-card border border-success shadow-lg h-100">
+            <div class="card-header border-bottom border-success bg-success bg-opacity-10">
+                <span class="text-success fw-bold"><i class="fas fa-check-circle me-2"></i> BİTTİ</span>
+                <span class="badge bg-success text-dark float-end" id="count-done">0</span>
+            </div>
+            <div class="card-body p-3 kanban-col" id="col-done">
+                 @foreach(var subject in Model) {
+                    foreach(var task in subject.Topics.Where(t => t.Status == "Done")) {
+                        <div class="card bg-dark border-start border-4 border-success mb-3 kanban-item opacity-75">
+                            <div class="card-body p-3">
+                                <small class="text-muted fw-bold text-uppercase">@subject.Name</small>
+                                <p class="text-muted text-decoration-line-through mb-2">@task.Title</p>
+                                <div class="d-flex justify-content-start">
+                                     <form asp-action="MoveTopic" method="post">
+                                        <input type="hidden" name="id" value="@task.Id" />
+                                        <input type="hidden" name="status" value="Doing" />
+                                        <button class="btn btn-sm btn-outline-secondary" title="Geri Al"><i class="fas fa-undo"></i></button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- MODAL: ADD SUBJECT -->
+<div class="modal fade" id="addSubjectModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-card border-secondary text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Yeni Ders Ekle</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="CreateSubject" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Ders Adı</label>
+                        <input name="Name" class="form-control bg-dark text-white border-secondary" required />
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button class="btn btn-danger">Oluştur</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: ADD TASK -->
+<div class="modal fade" id="addTaskModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-card border-secondary text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Görev Ekle</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="AddTopic" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                         <label class="form-label">Hangi Ders?</label>
+                         <select name="subjectId" class="form-select bg-dark text-white border-secondary">
+                             @foreach(var s in Model) {
+                                 <option value="@s.Id">@s.Name</option>
+                             }
+                         </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Görev Tanımı</label>
+                        <textarea name="title" class="form-control bg-dark text-white border-secondary" rows="2" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button class="btn btn-light">Ekle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Simple count update script
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById('count-todo').innerText = document.querySelectorAll('#col-todo .kanban-item').length;
+        document.getElementById('count-doing').innerText = document.querySelectorAll('#col-doing .kanban-item').length;
+        document.getElementById('count-done').innerText = document.querySelectorAll('#col-done .kanban-item').length;
+    });
+</script>

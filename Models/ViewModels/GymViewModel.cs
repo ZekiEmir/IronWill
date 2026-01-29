@@ -10,5 +10,9 @@ namespace IronWill.Models.ViewModels
         // Nutrition
         public List<FoodLog> TodayFoodLogs { get; set; } = new List<FoodLog>();
         public int TotalProteinToday { get; set; }
+
+        // Chart Data
+        public List<string> ChartLabels { get; set; } = new List<string>();
+        public List<double> ChartValues { get; set; } = new List<double>();
     }
 }

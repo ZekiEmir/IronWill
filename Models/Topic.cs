@@ -10,6 +10,8 @@ namespace IronWill.Models
         
         public bool IsCompleted { get; set; }
         
+        public string Status { get; set; } = "Todo"; // Kanban Status
+
         // Navigation Property
         public Subject Subject { get; set; }
     }

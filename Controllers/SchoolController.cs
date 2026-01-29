@@ -19,6 +19,16 @@ namespace IronWill.Controllers
             var subjects = await _context.Subjects
                 .Include(s => s.Topics)
                 .ToListAsync();
+            
+            // Migration hack: If Status is null but IsCompleted is set, fix it in memory (or save)
+            foreach(var s in subjects) {
+                foreach(var t in s.Topics) {
+                    if(string.IsNullOrEmpty(t.Status)) {
+                        t.Status = t.IsCompleted ? "Done" : "Todo";
+                    }
+                }
+            }
+
             return View(subjects);
         }
 
@@ -46,31 +56,24 @@ namespace IronWill.Controllers
         {
             if (!string.IsNullOrEmpty(title))
             {
-                var topic = new Topic { SubjectId = subjectId, Title = title, IsCompleted = false };
+                var topic = new Topic { SubjectId = subjectId, Title = title, Status = "Todo", IsCompleted = false };
                 _context.Topics.Add(topic);
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Index));
         }
 
-        // AJAX Action for School/Index Checkboxes
         [HttpPost]
-        public async Task<IActionResult> ToggleTopicAjax(int id)
+        public async Task<IActionResult> MoveTopic(int id, string status)
         {
-            var topic = await _context.Topics.Include(t => t.Subject).ThenInclude(s => s.Topics).FirstOrDefaultAsync(t => t.Id == id);
+            var topic = await _context.Topics.FindAsync(id);
             if (topic != null)
             {
-                topic.IsCompleted = !topic.IsCompleted;
+                topic.Status = status;
+                topic.IsCompleted = (status == "Done");
                 await _context.SaveChangesAsync();
-                
-                // Recalculate progress
-                var total = topic.Subject.Topics.Count;
-                var completed = topic.Subject.Topics.Count(t => t.IsCompleted);
-                var progress = total > 0 ? (int)((double)completed / total * 100) : 0;
-                
-                return Json(new { success = true, progress = progress });
             }
-            return Json(new { success = false });
+            return RedirectToAction(nameof(Index));
         }
     }
 }

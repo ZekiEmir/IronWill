@@ -3,11 +3,11 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - IronWill</title>
+    <title>SAVAŞ ODASI // IRONWILL</title>
     
     <!-- PWA Settings -->
     <link rel="manifest" href="~/manifest.json">
-    <meta name="theme-color" content="#1f1f1f">
+    <meta name="theme-color" content="#0a0a0a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="IronWill">
@@ -21,279 +21,173 @@
 <body>
     
     <div class="wrapper">
-        <!-- Sidebar (Desktop Only) -->
-        <nav id="sidebar" class="d-none d-md-block">
+        <!-- SIDEBAR -->
+        <nav class="sidebar">
             <div class="sidebar-header">
-                <h3 class="text-neon mb-0"><i class="fas fa-terminal"></i> KOMUTA</h3>
-                <small class="text-muted">Sys v3.0 // Online</small>
+                <a href="/" class="sidebar-brand">
+                    <i class="fas fa-biohazard me-2"></i> IRONWILL
+                </a>
             </div>
 
-            <ul class="list-unstyled components">
-                <li>
-                    <a href="@Url.Action("Index", "Dashboard")" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Dashboard" ? "active" : "")">
-                        <i class="fas fa-shield-alt"></i> Savaş Odası
+            <ul class="sidebar-menu">
+                <li class="sidebar-item">
+                    <a href="@Url.Action("Index", "Dashboard")" class="sidebar-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Dashboard" ? "active" : "")">
+                        <i class="fas fa-shield-alt text-neon"></i>
+                        <span>Savaş Odası</span>
                     </a>
                 </li>
-                <li>
-                    <a href="@Url.Action("Index", "Habit")" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Habit" ? "active" : "")">
-                        <i class="fas fa-link"></i> Zincir
+                <li class="sidebar-item">
+                    <a href="@Url.Action("Index", "Gym")" class="sidebar-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Gym" ? "active" : "")">
+                        <i class="fas fa-dumbbell text-gold"></i>
+                        <span>Kışla (Spor)</span>
                     </a>
                 </li>
-                <li>
-                    <a href="@Url.Action("Index", "Project")" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Project" ? "active" : "")">
-                        <i class="fas fa-briefcase"></i> İş (Freelance)
+                <li class="sidebar-item">
+                    <a href="@Url.Action("Index", "Project")" class="sidebar-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Project" ? "active" : "")">
+                        <i class="fas fa-briefcase text-info"></i>
+                        <span>Operasyonlar (İş)</span>
                     </a>
                 </li>
-                <li>
-                    <a href="@Url.Action("Index", "School")" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "School" ? "active" : "")">
-                        <i class="fas fa-book"></i> Akademi
+                 <li class="sidebar-item">
+                    <a href="@Url.Action("Index", "School")" class="sidebar-link @(ViewContext.RouteData.Values["Controller"].ToString() == "School" ? "active" : "")">
+                        <i class="fas fa-graduation-cap text-danger"></i>
+                        <span>Akademi</span>
                     </a>
                 </li>
-                <li>
-                    <a href="@Url.Action("Index", "Gym")" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Gym" ? "active" : "")">
-                        <i class="fas fa-dumbbell"></i> Spor (Kışla)
+                <li class="sidebar-item">
+                    <a href="@Url.Action("Index", "Habit")" class="sidebar-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Habit" ? "active" : "")">
+                        <i class="fas fa-link text-success"></i>
+                        <span>Zincir</span>
                     </a>
                 </li>
-                <li>
-                    <a href="@Url.Action("Index", "Journal")" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Journal" ? "active" : "")">
-                        <i class="fas fa-moon"></i> Nöbet (Günlük)
+                 <li class="sidebar-item">
+                    <a href="@Url.Action("Index", "Journal")" class="sidebar-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Journal" ? "active" : "")">
+                        <i class="fas fa-book-dead text-muted"></i>
+                        <span>Nöbet Defteri</span>
                     </a>
                 </li>
-                <li>
-                    <a href="@Url.Action("Index", "Books")" class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Books" ? "active" : "")">
-                        <i class="fas fa-archive"></i> Taktik Arşiv
+                <li class="sidebar-item">
+                    <a href="@Url.Action("Index", "Books")" class="sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Books" ? "active" : "")">
+                        <i class="fas fa-archive text-warning"></i>
+                        <span>Taktik Arşiv</span>
                     </a>
                 </li>
             </ul>
 
-            <!-- Pomodoro Widget -->
-            <div class="pomodoro-widget d-none d-md-block text-center">
-                <h6 class="text-muted text-uppercase mb-2"><i class="fas fa-stopwatch"></i> ODAK MODU</h6>
-                <div class="timer-display display-6 text-neon fw-bold mb-2" id="pomodoro">25:00</div>
-                
-                <div class="d-flex justify-content-center gap-1 mb-2">
-                    <button class="btn btn-sm btn-outline-secondary" onclick="setTime(25)">25dk</button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="setTime(50)">50dk</button>
-                </div>
-
-                <div class="d-flex justify-content-center gap-2">
-                    <button class="btn btn-sm btn-success" id="btnStart" onclick="startTimer()"><i class="fas fa-play"></i></button>
-                    <button class="btn btn-sm btn-warning d-none" id="btnPause" onclick="pauseTimer()"><i class="fas fa-pause"></i></button>
-                    <button class="btn btn-sm btn-danger" onclick="resetTimer()"><i class="fas fa-redo"></i></button>
-                </div>
+            <!-- Active User Profile / Logout could go here -->
+            <div class="p-3 border-top border-secondary">
+                 <small class="text-muted d-block text-center mb-2">SİSTEM SÜRÜMÜ v3.0</small>
+                 <div class="text-center text-neon" style="font-size: 0.8rem;">
+                     ONLINE <i class="fas fa-circle ms-1" style="font-size: 8px;"></i>
+                 </div>
             </div>
         </nav>
 
-        <!-- Page Content -->
-        <div id="content">
-            <!-- Mobile Header (Simple) -->
-            <div class="d-md-none d-flex justify-content-between align-items-center mb-3 border-bottom border-secondary pb-2">
-                <span class="text-neon fw-bold"><i class="fas fa-terminal"></i> KOMUTA YAZILIMI</span>
-                <span class="badge bg-danger">ONLINE</span>
-            </div>
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- TOP HEADER -->
+            <header class="top-header">
+                <div class="header-greeting">
+                    <i class="fas fa-user-astronaut text-neon me-2"></i> HOŞGELDİN KOMUTAN
+                </div>
+                <div class="header-clock" id="digital-clock">
+                    --:--
+                </div>
+            </header>
 
-            <main role="main">
+            <!-- PAGE CONTENT BODY -->
+            <div class="content-body">
                 @RenderBody()
-            </main>
+            </div>
         </div>
     </div>
 
-    <!-- Mobile Bottom Navigation -->
-    <nav class="navbar-bottom d-md-none">
-        <div class="row m-0">
-            <div class="col p-0">
-                <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Dashboard" ? "active" : "")" href="@Url.Action("Index", "Dashboard")">
-                    <i class="fas fa-shield-alt"></i><br>HOME
-                </a>
-            </div>
-            <div class="col p-0">
-                <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Project" ? "active" : "")" href="@Url.Action("Index", "Project")">
-                    <i class="fas fa-briefcase"></i><br>İŞ
-                </a>
-            </div>
-            <div class="col p-0">
-                <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "School" ? "active" : "")" href="@Url.Action("Index", "School")">
-                    <i class="fas fa-book"></i><br>OKUL
-                </a>
-            </div>
-            <div class="col p-0">
-                <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Gym" ? "active" : "")" href="@Url.Action("Index", "Gym")">
-                    <i class="fas fa-dumbbell"></i><br>SPOR
-                </a>
-            </div>
-            <div class="col p-0">
-                <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Journal" ? "active" : "")" href="@Url.Action("Index", "Journal")">
-                    <i class="fas fa-moon"></i><br>NÖBET
-                </a>
-            </div>
-            <div class="col p-0">
-                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Books" ? "active" : "")" href="@Url.Action("Index", "Books")">
-                    <i class="fas fa-archive"></i><br>ARŞİV
-                </a>
-            </div>
-        </div>
-    </nav>
-
+    <!-- GLOBAL SCRIPTS -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     
+    <!-- PWA Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/service-worker.js')
-                    .then((reg) => console.log('Service Worker Registered!', reg))
-                    .catch((err) => console.log('Service Worker Registration Failed!', err));
+                    .then((reg) => console.log('SW Registered'))
+                    .catch((err) => console.log('SW Failed', err));
             });
         }
     </script>
     
+    <!-- Clock Script -->
     <script>
-        // Sidebar Toggle
-        $(document).ready(function () {
-            $('#sidebarCollapse').on('click', function () {
-                $('#sidebar').toggleClass('active');
-            });
-        });
-
-        // Advanced Pomodoro Logic
-        let timerInterval;
-        let timeLeft = 25 * 60;
-        let isRunning = false;
-        let initialTime = 25 * 60;
-
-        function updateDisplay() {
-            let minutes = Math.floor(timeLeft / 60);
-            let seconds = timeLeft % 60;
-            document.getElementById('pomodoro').innerText = 
-                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            
-            // Taskbar title update
-            document.title = `${minutes}:${seconds.toString().padStart(2, '0')} - ODAK`;
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('digital-clock').textContent = timeString;
         }
-
-        function setTime(minutes){
-            pauseTimer();
-            initialTime = minutes * 60;
-            timeLeft = initialTime;
-            updateDisplay();
-        }
-
-        function toggleButtons(running) {
-            if(running) {
-                $('#btnStart').addClass('d-none');
-                $('#btnPause').removeClass('d-none');
-            } else {
-                $('#btnStart').removeClass('d-none');
-                $('#btnPause').addClass('d-none');
-            }
-        }
-
-        function startTimer() {
-            if (isRunning) return;
-            
-            isRunning = true;
-            toggleButtons(true);
-            
-            timerInterval = setInterval(() => {
-                if (timeLeft > 0) {
-                    timeLeft--;
-                    updateDisplay();
-                } else {
-                    clearInterval(timerInterval);
-                    isRunning = false;
-                    toggleButtons(false);
-                    new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play();
-                    alert("GÖREV TAMAMLANDI ASKER! DİNLEN.");
-                }
-            }, 1000);
-        }
-
-        function pauseTimer() {
-            clearInterval(timerInterval);
-            isRunning = false;
-            toggleButtons(false);
-        }
-
-        function resetTimer() {
-            pauseTimer();
-            timeLeft = initialTime;
-            updateDisplay();
-            document.title = "DEMİR İRADE // KONTROL PANELİ";
-        }
+        setInterval(updateClock, 1000);
+        updateClock();
     </script>
+
+    <!-- Morning Modal (Preserved) -->
     <div class="modal fade" id="morningModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
-        <!-- ... Morning Modal Content ... (Keeping existing content) -->
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark text-white border-success shadow-lg" style="border-width: 2px;">
+            <div class="modal-content bg-card text-white border border-success shadow-lg">
                 <div class="modal-header border-bottom border-success">
-                    <h5 class="modal-title text-neon fw-bold"><i class="fas fa-sun"></i> SABAH İÇTİMASI</h5>
+                    <h5 class="modal-title text-neon fw-bold"><i class="fas fa-sun"></i> GÜNAYDIN KOMUTAN</h5>
                 </div>
                 <div class="modal-body p-4">
-                    <p class="text-white-50 mb-4 text-center">Güne başlamadan önce rapor ver asker!</p>
-                    
                     <form id="morningForm">
-                        <div class="form-check mb-3 p-3 border border-secondary rounded bg-black bg-opacity-25">
+                        <div class="form-check mb-3 p-3 border border-secondary rounded hover-neon">
                             <input class="form-check-input bg-dark border-secondary" type="checkbox" id="checkBed">
                             <label class="form-check-label text-white fw-bold ms-2" for="checkBed">
-                                Yatak Toplandı mı?
+                                Yatak Toplandı
                             </label>
                         </div>
-                        
-                        <div class="form-check mb-4 p-3 border border-secondary rounded bg-black bg-opacity-25">
+                        <div class="form-check mb-4 p-3 border border-secondary rounded hover-neon">
                             <input class="form-check-input bg-dark border-secondary" type="checkbox" id="checkWater">
                             <label class="form-check-label text-white fw-bold ms-2" for="checkWater">
-                                1 Bardak Su İçildi mi?
+                                Su İçildi
                             </label>
                         </div>
-
                         <div class="mb-3">
-                            <label for="dailyGoal" class="form-label text-neon small fw-bold">GÜNÜN ANA GÖREVİ</label>
-                            <input type="text" class="form-control bg-dark text-white border-success text-center fw-bold" id="dailyGoal" placeholder="HEDEF BELİRLE..." required>
+                            <label for="dailyGoal" class="form-label text-neon small fw-bold">GÜNÜN HEDEFİ</label>
+                            <input type="text" class="form-control bg-dark text-white border-success text-center fw-bold" id="dailyGoal" placeholder="Hedef Gir..." required>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer border-top border-success justify-content-center">
-                    <button type="button" class="btn btn-outline-success w-100 fw-bold text-uppercase py-2" onclick="submitMorningRollCall()">
-                        <i class="fas fa-check-circle"></i> Raporu Tamamla
+                    <button type="button" class="btn btn-outline-success w-100 fw-bold" onclick="submitMorningRollCall()">
+                        RAPOR VER
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Panic Button (Desktop) -->
-    <div class="position-fixed top-0 end-0 m-3 d-none d-md-block" style="z-index: 1060;">
-        <button class="btn btn-danger fw-bold text-uppercase shadow-lg" data-bs-toggle="modal" data-bs-target="#panicModal">
-            <i class="fas fa-exclamation-triangle"></i> ACİL DURUM
-        </button>
-    </div>
-
-    <!-- Stoic Emergency Modal -->
+    <!-- Panic Modal (Preserved) -->
     <div class="modal fade" id="panicModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content bg-dark text-white border-danger shadow-lg" style="border-width: 3px;">
+            <div class="modal-content bg-card text-white border border-danger shadow-lg">
                 <div class="modal-header border-danger">
-                    <h5 class="modal-title text-danger fw-bold display-6"><i class="fas fa-skull"></i> STOİK ACİL DURUM PROTOKOLÜ</h5>
+                    <h5 class="modal-title text-danger-glow fw-bold display-6"><i class="fas fa-skull"></i> STOİK PROTOKOL</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-5 text-center">
                     <h2 class="text-white mb-4">"BU DA GEÇER."</h2>
                     <p class="lead text-white-50 mb-5">
-                        Şu an hissettiğin acı, öfke veya korku... Hepsi zihninin bir oyunu.
-                        Dış dünyadı hiçbir şey ruhuna zarar veremez, sen izin vermedikçe.
+                        Zihnindeki fırtına dinince geriye sadece sen kalacaksın.
                     </p>
-                    
                     <div class="d-flex justify-content-center gap-3">
-                        <button class="btn btn-outline-light btn-lg" onclick="location.href='/Journal'"><i class="fas fa-pen"></i> Düşüncelerini Yaz</button>
-                        <button class="btn btn-outline-danger btn-lg" data-bs-dismiss="modal"><i class="fas fa-fist-raised"></i> Sakinim & Hazırım</button>
+                        <button class="btn btn-outline-light btn-lg" onclick="location.href='/Journal'"><i class="fas fa-pen"></i> Yazarak Sakinleş</button>
+                        <button class="btn btn-outline-danger btn-lg" data-bs-dismiss="modal">Hazırım</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- YAVER Chatbot UI -->
+    <!-- Yaver Chatbot FAB -->
     <div id="yaver-fab" class="position-fixed bottom-0 end-0 m-4" style="z-index: 1050; cursor: pointer;">
         <div class="bg-success text-dark rounded-circle d-flex align-items-center justify-content-center shadow-lg hover-scale" 
              style="width: 60px; height: 60px; border: 2px solid #00ff00;" onclick="toggleChat()">
@@ -301,23 +195,24 @@
         </div>
     </div>
 
+    <!-- Yaver Window -->
     <div id="yaver-window" class="position-fixed bottom-0 end-0 m-4 mb-5 pb-5 d-none" style="z-index: 1049; width: 350px;">
-        <div class="card bg-dark border-success shadow-lg" style="border-width: 2px;">
+        <div class="card bg-card border border-success shadow-lg">
             <div class="card-header bg-success text-dark d-flex justify-content-between align-items-center fw-bold">
-                <span><i class="fas fa-microchip"></i> YAVER v1.0</span>
+                <span><i class="fas fa-microchip"></i> YAVER v2.0</span>
                 <button type="button" class="btn-close btn-close-white" onclick="toggleChat()"></button>
             </div>
             <div class="card-body p-0">
                 <div id="chat-messages" class="p-3 overflow-auto" style="height: 300px; background-color: #0d0d0d;">
                     <div class="mb-2 text-start">
                         <span class="d-inline-block p-2 rounded bg-secondary text-white small">
-                            Emredin? ("Help" yazarak komutları görebilirsiniz.)
+                            Emredin Komutanım? "motivasyon" veya "kriz" yazabilirsiniz.
                         </span>
                     </div>
                 </div>
                 <div class="p-2 border-top border-success bg-dark">
                     <div class="input-group">
-                        <input type="text" id="chat-input" class="form-control bg-black text-neon border-secondary" placeholder="Komut girin..." onkeypress="handleEnter(event)">
+                        <input type="text" id="chat-input" class="form-control bg-black text-neon border-secondary" placeholder="Komut..." onkeypress="handleEnter(event)">
                         <button class="btn btn-outline-success" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
                     </div>
                 </div>
@@ -327,8 +222,9 @@
 
     @await RenderSectionAsync("Scripts", required: false)
     
+    <!-- Yaver & Morning Logic Scripts -->
     <script>
-        // Check Morning Status on Load
+        // Check Morning Status
         $(document).ready(function() {
             $.get('/Dashboard/CheckMorningStatus', function(data) {
                 if (!data.isCompleted) {
@@ -339,20 +235,17 @@
         });
 
         function submitMorningRollCall() {
+            // ... (Same logic as before, just inline for simplicity in full file rewrite)
             var bed = $('#checkBed').is(':checked');
             var water = $('#checkWater').is(':checked');
             var goal = $('#dailyGoal').val();
 
             if (!bed || !water || !goal) {
-                alert("Tüm görevleri tamamlamadan panele erişemezsin asker!");
+                alert("Eksik bilgi!");
                 return;
             }
 
-            var payload = {
-                BedMade: bed,
-                WaterDrank: water,
-                DailyMainGoal: goal
-            };
+            var payload = { BedMade: bed, WaterDrank: water, DailyMainGoal: goal };
 
             $.ajax({
                 url: '/Dashboard/SubmitMorningLog',
@@ -360,56 +253,66 @@
                 contentType: 'application/json',
                 data: JSON.stringify(payload),
                 success: function() {
-                    var myModal = bootstrap.Modal.getInstance(document.getElementById('morningModal'));
-                    myModal.hide();
-                    location.reload(); // Refresh to update Dashboard if needed
+                    bootstrap.Modal.getInstance(document.getElementById('morningModal')).hide();
+                    location.reload();
                 },
-                error: function() {
-                    alert("Rapor iletilemedi! Bağlantıyı kontrol et.");
-                }
+                error: function() { alert("Hata!"); }
             });
         }
 
-        // YAVER Logic
-        function toggleChat() {
-            $('#yaver-window').toggleClass('d-none');
-        }
-
-        function handleEnter(e) {
-            if (e.key === 'Enter') sendMessage();
-        }
+        // Yaver Logic
+        function toggleChat() { $('#yaver-window').toggleClass('d-none'); }
+        function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
 
         function sendMessage() {
             var input = $('#chat-input');
-            var msg = input.val();
-            if(!msg.trim()) return;
+            var msg = input.val().trim();
+            if(!msg) return;
 
-            // User Msg
+            addMsg(msg, 'end', 'bg-success text-dark fw-bold');
+            input.val('');
+
+            // Client Logic
+            var lowerVal = msg.toLowerCase();
+            if(lowerVal === 'motivasyon') {
+                var quotes = [
+                    "Kaderini sev, çünkü senin hayatın bu. - Nietzsche",
+                    "Yarın bambaşka bir insan olacağım diyorsun. Neden bugünden başlamıyorsun? - Epiktetos",
+                    "Disiplin, ne istediğini unutmamanın sanatıdır."
+                ];
+                setTimeout(() => botReply(quotes[Math.floor(Math.random() * quotes.length)]), 500);
+                return;
+            }
+            if(lowerVal === 'kriz') {
+                botReply("Protokol Başlatılıyor...");
+                setTimeout(() => {
+                    var modalEl = document.getElementById('panicModal');
+                    if(modalEl) new bootstrap.Modal(modalEl).show();
+                    else window.location.href = '/Dashboard';
+                }, 1000);
+                return;
+            }
+
+            // Server Logic
+            $.post('/Yaver/Chat', { message: msg }, function(data) {
+                botReply(data.reply);
+            }).fail(() => botReply("Telsiz Kapalı."));
+        }
+
+        function addMsg(text, align, classes) {
             $('#chat-messages').append(`
-                <div class="mb-2 text-end">
-                    <span class="d-inline-block p-2 rounded bg-success text-dark fw-bold small">
-                        ${msg}
+                <div class="mb-2 text-${align}">
+                    <span class="d-inline-block p-2 rounded small ${classes}">
+                        ${text}
                     </span>
                 </div>
             `);
-            
-            input.val('');
-            
-            // Auto Scroll
-            var chatBox = document.getElementById('chat-messages');
-            chatBox.scrollTop = chatBox.scrollHeight;
+            var box = document.getElementById('chat-messages');
+            box.scrollTop = box.scrollHeight;
+        }
 
-            // AJAX call
-            $.post('/Yaver/Chat', { message: msg }, function(data) {
-                $('#chat-messages').append(`
-                    <div class="mb-2 text-start">
-                        <span class="d-inline-block p-2 rounded bg-secondary text-white small">
-                            ${data.reply}
-                        </span>
-                    </div>
-                `);
-                chatBox.scrollTop = chatBox.scrollHeight;
-            });
+        function botReply(text) {
+            addMsg(text, 'start', 'bg-secondary text-white');
         }
     </script>
 </body>

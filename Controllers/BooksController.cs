@@ -134,6 +134,10 @@ namespace IronWill.Controllers
             }
 
             book.CurrentPage = currentPage;
+            
+            // XP REWARD for Reading Session
+            await _rankService.AddXPAsync("Books", $"Kitap Okuma: {book.Title}", 15);
+
             if(book.CurrentPage >= book.TotalPages && book.TotalPages > 0 && book.Status != "Finished")
             {
                 book.Status = "Finished";

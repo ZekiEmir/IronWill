@@ -17,13 +17,17 @@
             </div>
             <div class="row">
                 <div class="col-6 form-group mb-3">
-                    <label asp-for="AgreedPrice" class="control-label">Anlaşılan Fiyat</label>
-                    <input asp-for="AgreedPrice" class="form-control bg-dark text-white" />
+                    <label asp-for="ContractAmount" class="control-label">Anlaşılan Fiyat</label>
+                    <input asp-for="ContractAmount" class="form-control bg-dark text-white" />
                 </div>
                 <div class="col-6 form-group mb-3">
                     <label asp-for="PaidAmount" class="control-label">Ödenen Miktar</label>
                     <input asp-for="PaidAmount" class="form-control bg-dark text-white" />
                 </div>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Deadline" class="control-label">Teslim Tarihi</label>
+                <input asp-for="Deadline" type="date" class="form-control bg-dark text-white" />
             </div>
             <div class="form-group mb-3">
                 <label asp-for="Status" class="control-label">Durum</label>
